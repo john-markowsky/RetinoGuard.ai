@@ -4,12 +4,13 @@
 <div class="ui centered grid">
   <div class="eight wide column">
       <div class="ui raised very padded text container segment">
-        <h2 class="ui header">Fundus Retinal Image Processor</h2>
-        <img src="static/digital_eye.png" style="max-width:100%; height:auto;">
-        <p>RetinoGuardAI is an AI-powered system for diagnosing diabetic retinopathy.</p>
-        <a href="/about" <p>What is diabetic retinopathy?</p></a>
+        <h2 class="ui header">RetinoGuardAI - Fundus Retinal Image Processor</h2>
+        <img src="static/misc/digital_eye.png" style="max-width:100%; height:auto;">
+        <p>RetinoGuardAI is an AI-powered system for the diagnosis of diabetic retinopathy, an eye disease that affects people with diabetes.</p>
+        <a href="/about" class="ui button">Learn more about diabetic retinopathy</a>
         <div class="ui divider"></div>
-        <p>Please upload a retinal image below to receive a diagnosis:</p>
+        <p>As an optometrist or eye specialist, you can use RetinoGuardAI to analyze retinal images and receive a diagnosis of diabetic retinopathy with high accuracy and speed.</p>
+        <p>Simply upload a retinal image below to receive a diagnosis:</p>
         <form class="ui form" method="POST" enctype="multipart/form-data" action="/predict" id="image-form">
           <div class="field">
             <label>Retinal Image</label>

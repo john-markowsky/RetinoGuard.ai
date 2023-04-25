@@ -25,10 +25,11 @@ explainer = LimeImageExplainer()
 
 # Define the likert scale image file paths
 image_paths = {
-    0: "static/good.png",
-    1: "static/medium.png",
-    2: "static/poor.png",
-    3: "static/bad.png",
+    0: "static/likert/0.png",
+    1: "static/likert/1.png",
+    2: "static/likert/2.png",
+    3: "static/likert/3.png",
+    4: "static/likert/4.png",
 }
 
 # Define the Index page.
@@ -51,7 +52,18 @@ async def submit(request: Request):
 async def submit(request: Request):
     return templates.TemplateResponse("error.html", {"request": request})
 
-#Define the API endpoint for file upload and prediction
+# Define the results page
+@app.get("/result")
+async def homepage(request: Request, prediction=None, explanation_text=None, likert_scale_path=None):
+    return templates.TemplateResponse(
+        "result.html", 
+        {"request": request, 
+         "prediction": prediction, 
+         "explanation_text": explanation_text, 
+         "likert_scale_path": likert_scale_path}
+    )
+
+
 @app.post("/predict")
 async def predict(request: Request, image: UploadFile = File(...)):
     try:
@@ -74,14 +86,28 @@ async def predict(request: Request, image: UploadFile = File(...)):
         # Generate an explanation
         explanation = explainer.explain_instance(image_array, model.predict, ...)
 
-        # Return the prediction, explanation, and likert scale image path to the webpage
-        return templates.TemplateResponse(
-            "result.html",
-            {"request": request,
-             "prediction": prediction,
-             "explanation": explanation,
-             "likert_scale_path": image_paths[predicted_category]}
+        # Define the explanation text based on the predicted category
+        explanation_text = ""
+        if predicted_category == 0:
+            explanation_text = "No diabetic retinopathy (DR) was detected in this image."
+        elif predicted_category == 1:
+            explanation_text = "This means that some small areas of the retina may have damaged blood vessels or swelling."
+        elif predicted_category == 2:
+            explanation_text = "Moderate DR was detected in this image. This means that there is a more widespread area of the retina affected by damaged blood vessels or swelling."
+        elif predicted_category == 3:
+            explanation_text = "Severe DR was detected in this image. This means that a large portion of the retina is affected by damaged blood vessels or swelling."
+        elif predicted_category == 4:
+            explanation_text = "Proliferative diabetic retinopathy (PDR) was detected in this image. This means that there is a significant amount of new blood vessel growth on the retina, which can lead to serious vision problems or even blindness."
+
+        # Define the likert scale image path based on the predicted category
+        likert_scale_path = image_paths[predicted_category]
+
+        # Return the prediction, explanation, explanation text, and likert scale image path to the webpage
+        return RedirectResponse(
+            url=f"/result?prediction={prediction}&explanation_text={explanation_text}&likert_scale_path={likert_scale_path}",
+            status_code=303
         )
+
     except UnidentifiedImageError:
         # Return an error message if the image format is not recognized
         return templates.TemplateResponse(
@@ -89,35 +115,5 @@ async def predict(request: Request, image: UploadFile = File(...)):
             {"request": request, "message": "The uploaded file is not recognized as an image file."}
         )
 
-# Define the results page
-@app.get("/result")
-async def homepage(request: Request, prediction=None, explanation=None, likert_scale_path=None):
-    return templates.TemplateResponse(
-        "result.html", 
-        {"request": request, 
-         "prediction": prediction, 
-         "explanation": explanation, 
-         "likert_scale_path": likert_scale_path}
-    )
 
-# Define the API endpoint for file upload and prediction
-# @app.post("/predict")
-# async def predict(request: Request, image: UploadFile = File(...)):
-#     try:
-#         # Read the image file
-#         contents = await image.read()
-#         image_stream = io.BytesIO(contents)
-#         image_file = Image.open(image_stream).convert('RGB')
-
-#         # Preprocess the image
-#         image_resized = image_file.resize((224, 224))
-#         image_array = np.array(image_resized) / 255.0
-#         image_expanded = np.expand_dims(image_array, axis=0)
-
-#         # Make a prediction using the loaded model
-#         prediction = model.predict(image_expanded)[0]
-
-#         # ...
-#     except UnidentifiedImageError:
-#         return RedirectResponse(url="/error")
 
