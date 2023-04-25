@@ -1,0 +1,52 @@
+  {% extends "base.html" %}
+
+  {% block content %}
+    <div class="ui centered grid">
+      <div class=" ui eight wide column">
+        <div class="ui raised very padded text container segment">
+          <h2 class="ui header">What is Diabetic Retinopathy?</h2>
+          <img src="static/chart.jpeg" style="max-width:100%; height:auto;">
+          <p>Diabetic retinopathy is a common retinal disease that affects millions of people worldwide and can lead to severe vision loss or even blindness if left untreated. It is caused by damage to the blood vessels in the retina due to high blood sugar levels.</p>
+          <p>If you are a patient or optometrist, please click the button below to submit a retinal photo for analysis. Our system can detect diabetic retinopathy with high accuracy and speed, providing early diagnosis and treatment options to patients.</p>
+          <div class="ui divider"></div>
+          <h2 class="ui header">What is Fundus Retinal Photography?</h2>
+          <img src="https://d20525yxyrfxle.cloudfront.net/site_assets/images_v2/img_8141475703009.jpg" style="max-width:100%; height:auto;">
+          <p>Fundus photography is a medical imaging technique used to capture the image of the retina, which is the light-sensitive tissue at the back of the eye.</p>
+          <p>Using specialized cameras and imaging systems, healthcare professionals can capture high-quality images of the retina to diagnose and monitor a variety of ocular conditions such as diabetic retinopathy, macular degeneration, and glaucoma.</p>
+          <a href="/submit" class="ui yellow button">Test Your Eyes Now!</a>
+        </div>
+        <div class="ui segment preview-image" style="display: none;">
+          <h4 class="ui header">Preview Image</h4>
+          <img id="image-preview" src="" alt="Preview Image">
+        </div>
+    </div>
+    <style>
+      p {
+        color: black;
+      } 
+      .ui.container.segment {
+        text-align: left !important;
+      }
+    </style>
+
+    <div class="ui dimmer" id="loader">
+      <div class="ui text loader">Loading...</div>
+    </div>
+  {% endblock %}
+
+  {% block custom_js %}
+    <script type="text/javascript">
+      const form = document.querySelector('#image-form');
+      const submitButton = document.querySelector('#submit-button');
+      const loader = document.querySelector('#loader');
+
+      form.addEventListener('submit', function(e) {
+        loader.classList.add('active');
+        submitButton.classList.add('disabled');
+      });
+
+      window.addEventListener('beforeunload', function() {
+        loader.classList.add('active');
+      });
+    </script>
+  {% endblock %}

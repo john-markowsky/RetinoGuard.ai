@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>RetinoGuard AI</title>
+	<!-- Semantic UI CSS -->
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+	<!-- Custom CSS -->
+	<style type="text/css">
+		body {
+			background-color: #5a5a5a;
+			color: #fff;
+		}
+
+		.ui.inverted.menu {
+			background-color: #222;
+			border-color: #000;
+			box-shadow: none;
+		}
+
+		.ui.inverted.menu .item {
+			color: #fff;
+		}
+
+		.ui.inverted.menu .active.item {
+			background-color: #fbbd08;
+			color: #222;
+		}
+
+		.ui.inverted.segment {
+			background-color: #222;
+			color: #fff;
+			border-color: #000;
+			box-shadow: none;
+		}
+
+		.ui.inverted.segment h2.ui.header {
+			color: #fff;
+		}
+
+		.ui.inverted.segment input {
+			background-color: #fff;
+			color: #222;
+		}
+
+		.ui.inverted.segment button.ui.button {
+			background-color: #fbbd08;
+			color: #222;
+		}
+
+		.preview-image {
+			margin-top: 20px;
+			max-width: 500px;
+			max-height: 500px;
+		}
+	</style>
+</head>
+<body>
+	<!-- Navbar -->
+  <div class="ui inverted menu">
+	<div class="header item" >
+		<img src="static/logo_small.png" class="ui image" href="/">
+		<span>RetinoGuardAI</span>
+	</div>
+	<a class="item" href="/">Home</a>
+	<a class="item" href="/about">About</a>
+	<a class="item" href="/submit">Eye Analysis</a>
+	<a class="item" href="mailto:RetinoAI@gmail.com">Contact</a>
+    <!-- <div class="right menu">
+      <a class="item" href="#">Login</a>
+      <a class="item" href="#">Register</a> -->
+    </div>
+  </div>
+  
+  
+
+	<!-- Content -->
+	{% block content %}{% endblock %}
+
+	<!-- Semantic UI JavaScript -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+
+	<!-- Custom JavaScript -->
+	<script type="text/javascript">
+		const fileInput = document.querySelector('input[type="file"]');
+		const previewImage = document.querySelector('#image-preview');
+		const previewSegment = document.querySelector('.preview-image');
+
+		function previewImage(event) {
+			const file = event.target.files[0];
+			const reader = new FileReader();
+
+			reader.onload = function() {
+				previewImage.setAttribute('src', reader.result);
+				previewSegment.style.display = 'block';
+			};
+
+			reader.readAsDataURL(file);
+		}
+
+		fileInput.addEventListener('change', previewImage);
+	</script>
+</body>
+</html>

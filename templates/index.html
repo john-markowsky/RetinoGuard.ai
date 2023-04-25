@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="ui centered grid">
+    <div class="eight wide column">
+      <div class="ui raised very padded text container segment" style="background-color: #FFF; color: #000;">
+        <div class="ui center aligned container">
+          <img src="static/logo.png" style="max-width:100%; height:auto;">
+        </div>        
+        <h2 class="ui header">Why RetinoGuardAI?</h2>
+        <p>RetinoGuardAI aims to provide an efficient and accurate way of diagnosing diabetic retinopathy using AI technology. By analyzing retinal images, RetinoGuardAI can help healthcare professionals detect and treat diabetic retinopathy early on, potentially saving patients' vision.</p>
+        <div class="ui divider"></div>
+        <h2 class="ui header">Submit a Retinal Photo for Analysis</h2>
+        <img src="static/digital_eye.png" style="max-width:80%; height:auto;">
+        <p>If you are a patient or optometrist, please click the button below to submit a retinal photo for analysis. Our system can detect diabetic retinopathy with high accuracy and speed, providing early diagnosis and treatment options to patients.</p>
+        <a href="/submit" class="ui yellow button">Test Your Eyes Now!</a>
+      </div>
+    </div>
+  </div>
+  <style>
+    p {
+      color: black;
+    }
+  </style>
+{% endblock %}
+
+{% block custom_js %}
+  <script type="text/javascript">
+    const fileInput = document.querySelector('input[type="file"]');
+    const previewImage = document.querySelector('#image-preview');
+    const previewSegment = document.querySelector('.preview-image');
+
+    function previewImage(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function() {
+        previewImage.setAttribute('src', reader.result);
+        previewSegment.style.display = 'block';
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    fileInput.addEventListener('change', previewImage);
+  </script>
+{% endblock %}

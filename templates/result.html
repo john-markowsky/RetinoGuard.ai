@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if prediction %}
+<div class="ui centered grid">
+  <div class=" ui eight wide column">
+    <div class="ui segment">
+      <h2 class="ui header">Prediction Results</h2>
+
+      <div class="ui grid">
+        <div class="four wide column">
+          <h3>Prediction</h3>
+          <h4 class="ui header">{{ prediction | float | round(2) }}</h4>
+          <p>DR Grade</p>
+        </div>
+
+        <div class="twelve wide column">
+          <h3>Explanation</h3>
+          <div class="ui relaxed divided list">
+            {% for label, score in explanation.top_labels %}
+            <div class="item">
+              <div class="content">
+                <div class="header">{{ label | title }}</div>
+                <div class="description">{{ score | round(3) }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {% set score = prediction %}
+      {% set score_rounded = score | float | round %}
+      {% set image_path = 'static/' %}
+      {% if score_rounded == 0 %}
+      {% set image_path = image_path ~ 'good.png' %}
+      {% elif score_rounded == 1 %}
+      {% set image_path = image_path ~ 'medium.png' %}
+      {% elif score_rounded == 2 %}
+      {% set image_path = image_path ~ 'poor.png' %}
+      {% else %}
+      {% set image_path = image_path ~ 'bad.png' %}
+      {% endif %}
+
+      <h3>Prediction Likert Scale</h3>
+      <img src="{{ image_path }}" class="ui medium centered image" alt="Prediction Likert Scale">
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if not prediction %}
+<div class="ui centered grid">
+  <div class=" ui eight wide column"> 
+    <div class="ui segment">
+      <h2 class="ui header">Prediction Results</h2>
+      <p>No prediction available, please upload an image.</p>
+      <form class="ui form" method="POST" enctype="multipart/form-data" action="/predict" id="image-form">
+        <div class="field">
+          <label>Retinal Image</label>
+          <input type="file" name="image" onchange="previewImage(event)">
+        </div>
+        <button class="ui yellow button" type="submit" id="submit-button">Analyze Image</button>
+      </form>
+      <div class="ui segment preview-image" style="display: none;">
+        <h4 class="ui header">Preview Image</h4>
+        <img id="image-preview" src="" alt="Preview Image">
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+<style>
+  p {
+    color: black;
+  }
+</style>
+{% endblock %}
