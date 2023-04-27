@@ -7,7 +7,7 @@ Diabetic retinopathy (DR) is an extremely serious but all too common complicatio
 ![aux_img](https://user-images.githubusercontent.com/123923257/234385052-b9b4bb72-a0db-49d2-94b7-8f51c7dcbdfc.png)
 
 ## Project Aims
-The goal of this project is to develop a system which helps diagnose and predict the risk of diabetic retinopathy, allowing for earlier intervention and treatment to combat blindness. Our Retino Guard AI system will be trained on the Diabetic Retinopathy Debrecen Data Set to classify the images and determine the severity of retinopathy. We aim to produce a device which accurately assists healthcare professionals detect and prevent diabetic retinopathy via early diagnosis.
+The goal of this project is to develop a system which helps diagnose and predict the risk of diabetic retinopathy, allowing for earlier intervention and treatment to combat blindness. Our Retino Guard AI system will be trained on the APTOS 2019 Blindness Detection Data Set to classify the images and determine the severity of retinopathy. We aim to produce a device which accurately assists healthcare professionals detect and prevent diabetic retinopathy via early diagnosis.
 
 
 ## Methods
@@ -18,9 +18,13 @@ The knowledge, documents, and data required for this project is found on the Kag
 [APTOS 2019 Blindness Detection Data Set (Kaggle)](https://www.kaggle.com/competitions/aptos2019-blindness-detection)
 
 ## Models
-For this project, a DenseNet-121 model was used for image classification. The model was trained on the APTOS 2019 dataset with a binary cross-entropy loss function and an Adam optimizer. The model achieved an accuracy of 0.83 on the validation set and 0.84 on the test set.
+For this project, a DenseNet201 model was used for image classification. The model was trained on the APTOS 2019 dataset with a binary cross-entropy loss function, the Adam optimizer with a learning rate of 0.0001, and the evaluation metrics of accuracy and Cohen's kappa. The model achieved an accuracy of 0.79 on the validation set and 0.81 on the test set.
 
-The DenseNet-121 model is a convolutional neural network architecture that was introduced by Huang et al. in 2017. The network is characterized by dense connections between layers, which allow for efficient feature reuse and facilitate training of very deep neural networks.
+The DenseNet201 model is a convolutional neural network architecture that was introduced by Huang et al. in 2017. The network is characterized by dense connections between layers, which allow for efficient feature reuse and facilitate training of very deep neural networks.
+
+The model includes an input layer that takes in 224x224 pixel RGB images, followed by a pre-trained DenseNet201 layer from the ImageNet dataset, which extracts features from the input image. The output from this layer is then passed through a global average pooling layer that computes the average value of each feature map, reducing the dimensions of the feature maps.
+
+The resulting feature vector is then passed through a dropout layer to reduce overfitting and a fully connected layer with a sigmoid activation function that outputs a probability score for each of the 5 classes of the Aptos 2019 Blindness Detection Challenge.
 
 ## Web Application
 The Retino Guard AI web application was developed using FastAPI and Python to create a Decision Support System (DSS) for healthcare professionals, particularly ophthalmologists and optometrists, involved in the diagnosis and treatment of diabetic retinopathy patients. The system allows for the easy and efficient upload of retinal images by healthcare professionals and provides predictions for the severity of diabetic retinopathy.
