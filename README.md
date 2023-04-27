@@ -18,13 +18,17 @@ The knowledge, documents, and data required for this project is found on the Kag
 [APTOS 2019 Blindness Detection Data Set (Kaggle)](https://www.kaggle.com/competitions/aptos2019-blindness-detection)
 
 ## Models
-For this project, a DenseNet201 model was used for image classification. The model was trained on the APTOS 2019 dataset with a binary cross-entropy loss function, the Adam optimizer with a learning rate of 0.0001, and the evaluation metrics of accuracy and Cohen's kappa. The model achieved an accuracy of 0.79 on the validation set and 0.81 on the test set.
+For this project, a DenseNet201 model was used for image classification. The model was trained on the APTOS 2019 dataset with a binary cross-entropy loss function, the Adam optimizer with a learning rate of 0.0001, and the evaluation metrics of accuracy and Cohen's kappa. The model achieved an accuracy of 0.825 on the validation set and 0.81 on the test set.
+
+![__results___19_0](https://user-images.githubusercontent.com/123923257/234801053-970a8355-275d-4418-9a44-cc228346d590.png)
 
 The DenseNet201 model is a convolutional neural network architecture that was introduced by Huang et al. in 2017. The network is characterized by dense connections between layers, which allow for efficient feature reuse and facilitate training of very deep neural networks.
 
 The model includes an input layer that takes in 224x224 pixel RGB images, followed by a pre-trained DenseNet201 layer from the ImageNet dataset, which extracts features from the input image. The output from this layer is then passed through a global average pooling layer that computes the average value of each feature map, reducing the dimensions of the feature maps.
 
 The resulting feature vector is then passed through a dropout layer to reduce overfitting and a fully connected layer with a sigmoid activation function that outputs a probability score for each of the 5 classes of the Aptos 2019 Blindness Detection Challenge.
+
+![__results___23_0](https://user-images.githubusercontent.com/123923257/234801630-190f7d6b-5bd0-46c0-ac52-6a0e9d773cb5.png)
 
 ## Web Application
 The Retino Guard AI web application was developed using FastAPI and Python to create a Decision Support System (DSS) for healthcare professionals, particularly ophthalmologists and optometrists, involved in the diagnosis and treatment of diabetic retinopathy patients. The system allows for the easy and efficient upload of retinal images by healthcare professionals and provides predictions for the severity of diabetic retinopathy.
