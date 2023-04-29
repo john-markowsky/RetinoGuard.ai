@@ -22,7 +22,7 @@ The knowledge, documents, and data required for this project is found on the Kag
 
 For this project, a DenseNet201 model was used for image classification. The model was trained on the APTOS 2019 dataset with a binary cross-entropy loss function, the Adam optimizer with a learning rate of 0.0001, and the evaluation metrics of accuracy and Cohen's kappa. The model achieved an accuracy of 0.86 on the validation set and 0.78 on the test set. In the public test data for the APTOS Competition is only scored .714 however, which has prompted the need to create a RetinoGuard_v2.
 
-![__results___19_0](https://user-images.githubusercontent.com/123923257/234801053-970a8355-275d-4418-9a44-cc228346d590.png)
+![image](https://user-images.githubusercontent.com/123923257/235323952-2b12de47-0f10-44fc-b98e-8422f9aec0a9.png)
 
 The DenseNet201 model is a convolutional neural network architecture that was introduced by Huang et al. in 2017. The network is characterized by dense connections between layers, which allow for efficient feature reuse and facilitate training of very deep neural networks.
 
@@ -30,7 +30,7 @@ The model includes an input layer that takes in 224x224 pixel RGB images, follow
 
 The resulting feature vector is then passed through a dropout layer to reduce overfitting and a fully connected layer with a sigmoid activation function that outputs a probability score for each of the 5 classes of the Aptos 2019 Blindness Detection Challenge.
 
-![__results___23_0](https://user-images.githubusercontent.com/123923257/234801630-190f7d6b-5bd0-46c0-ac52-6a0e9d773cb5.png)
+![image](https://user-images.githubusercontent.com/123923257/235323780-52115408-fada-427e-98fe-7769eedba8dd.png)
 
 ## Web Application
 The Retino Guard AI web application was developed using FastAPI and Python to create a Decision Support System (DSS) for healthcare professionals, particularly ophthalmologists and optometrists, involved in the diagnosis and treatment of diabetic retinopathy patients. The system allows for the easy and efficient upload of retinal images by healthcare professionals and provides predictions for the severity of diabetic retinopathy.
