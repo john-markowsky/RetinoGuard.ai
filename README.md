@@ -18,7 +18,9 @@ The knowledge, documents, and data required for this project is found on the Kag
 [APTOS 2019 Blindness Detection Data Set (Kaggle)](https://www.kaggle.com/competitions/aptos2019-blindness-detection)
 
 ## Models
-For this project, a DenseNet201 model was used for image classification. The model was trained on the APTOS 2019 dataset with a binary cross-entropy loss function, the Adam optimizer with a learning rate of 0.0001, and the evaluation metrics of accuracy and Cohen's kappa. The model achieved an accuracy of 0.825 on the validation set and 0.81 on the test set.
+[RetinoGuard_v1: Kaggle Competition Notebook Link](https://www.kaggle.com/code/johnmarkowsky/retinoguard-v1/)
+
+For this project, a DenseNet201 model was used for image classification. The model was trained on the APTOS 2019 dataset with a binary cross-entropy loss function, the Adam optimizer with a learning rate of 0.0001, and the evaluation metrics of accuracy and Cohen's kappa. The model achieved an accuracy of 0.86 on the validation set and 0.78 on the test set. In the public test data for the APTOS Competition is only scored .714 however, which has prompted the need to create a RetinoGuard_v2.
 
 ![__results___19_0](https://user-images.githubusercontent.com/123923257/234801053-970a8355-275d-4418-9a44-cc228346d590.png)
 
