@@ -10,16 +10,16 @@
       <table class="ui celled table">
         <thead>
           <tr>
-            <th>Prediction</th>
+            <th>Diagnosis</th>
             <th>Explanation</th>
-            <th>Category</th>
+            <th>Confidence</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>{{ prediction | float | round(2) }}</td>
+            <td>{{ category }}</td>
             <td>{{ explanation_text }}</td>
-            <td>Moderate</td>
+            <td>{{ probability }}%</td>
           </tr>
         </tbody>
       </table>

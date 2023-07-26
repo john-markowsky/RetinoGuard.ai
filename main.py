@@ -2,26 +2,46 @@ from fastapi import FastAPI, File, UploadFile, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-import io
+from fastapi.responses import RedirectResponse
+from keras.preprocessing.image import ImageDataGenerator
+from keras.models import load_model
 from PIL import Image, UnidentifiedImageError
 import numpy as np
-import tensorflow as tf
-from lime import lime_image
-from lime.wrappers.scikit_image import SegmentationAlgorithm
-from lime.lime_image import LimeImageExplainer
-from fastapi.responses import RedirectResponse
+import io
+from tensorflow.keras.preprocessing.image import img_to_array
+
+# Define a function to preprocess the image
+def preprocess_image(image, target_size):
+    # Resize the image to target size and convert to array
+    image = image.resize(target_size)
+    image = img_to_array(image)
+    
+    # Apply the image generator transformations
+    image = datagen.random_transform(image)
+    image = datagen.standardize(image)
+    
+    # Add a dimension for batch size
+    image = np.expand_dims(image, axis=0)
+    
+    return image
 
 app = FastAPI()
 
 templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")  # add this line to mount the static files
-
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Load the model
-model = tf.keras.models.load_model('model.h5')
+model = load_model('model.hdf5')
 
-# Define the explainer
-explainer = LimeImageExplainer()
+# Define the image generator for preprocessing
+datagen = ImageDataGenerator(
+    horizontal_flip=True,
+    vertical_flip=True,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    brightness_range=[0.5, 1.5],
+    rescale=1./255
+)
 
 # Define the likert scale image file paths
 image_paths = {
@@ -32,37 +52,33 @@ image_paths = {
     4: "static/likert/4.png",
 }
 
-# Define the Index page.
 @app.get("/")
 async def homepage(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-# Define the About page.
 @app.get("/about")
-async def homepage(request: Request):
+async def about(request: Request):
     return templates.TemplateResponse("about.html", {"request": request})
 
-# Define the Submit a Photo page.
 @app.get("/submit")
 async def submit(request: Request):
     return templates.TemplateResponse("submit.html", {"request": request})
 
-# Define the Error page.
 @app.get("/error")
-async def submit(request: Request):
+async def error(request: Request):
     return templates.TemplateResponse("error.html", {"request": request})
 
-# Define the results page
 @app.get("/result")
-async def homepage(request: Request, prediction=None, explanation_text=None, likert_scale_path=None):
+async def result(request: Request, prediction=None, explanation_text=None, likert_scale_path=None, category=None, probability=None):
     return templates.TemplateResponse(
         "result.html", 
         {"request": request, 
          "prediction": prediction, 
          "explanation_text": explanation_text, 
-         "likert_scale_path": likert_scale_path}
+         "likert_scale_path": likert_scale_path,
+         "category": category,
+         "probability": probability}
     )
-
 
 @app.post("/predict")
 async def predict(request: Request, image: UploadFile = File(...)):
@@ -71,40 +87,41 @@ async def predict(request: Request, image: UploadFile = File(...)):
         contents = await image.read()
         image_stream = io.BytesIO(contents)
         image_file = Image.open(image_stream).convert('RGB')
-
-        # Preprocess the image
-        image_resized = image_file.resize((224, 224))
-        image_array = np.array(image_resized) / 255.0
-        image_expanded = np.expand_dims(image_array, axis=0)
+        image_array = preprocess_image(image_file, target_size=(299, 299))
 
         # Make a prediction using the loaded model
-        prediction = model.predict(image_expanded)[0]
+        prediction = model.predict(image_array)[0]
 
         # Get the index of the predicted category
         predicted_category = np.argmax(prediction)
+        predicted_category = np.argmax(prediction)
+        predicted_probability = round(prediction[predicted_category]*100)
 
-        # Generate an explanation
-        explanation = explainer.explain_instance(image_array, model.predict, ...)
-
-        # Define the explanation text based on the predicted category
+        # Define the explanation text and category based on the predicted category
         explanation_text = ""
+        category = ""
         if predicted_category == 0:
             explanation_text = "No diabetic retinopathy (DR) was detected in this image."
+            category = "Healthy"
         elif predicted_category == 1:
             explanation_text = "This means that some small areas of the retina may have damaged blood vessels or swelling."
+            category = "Mild"
         elif predicted_category == 2:
             explanation_text = "Moderate DR was detected in this image. This means that there is a more widespread area of the retina affected by damaged blood vessels or swelling."
+            category = "Moderate"
         elif predicted_category == 3:
             explanation_text = "Severe DR was detected in this image. This means that a large portion of the retina is affected by damaged blood vessels or swelling."
+            category = "Severe"
         elif predicted_category == 4:
             explanation_text = "Proliferative diabetic retinopathy (PDR) was detected in this image. This means that there is a significant amount of new blood vessel growth on the retina, which can lead to serious vision problems or even blindness."
+            category = "Proliferative"
 
         # Define the likert scale image path based on the predicted category
         likert_scale_path = image_paths[predicted_category]
 
         # Return the prediction, explanation, explanation text, and likert scale image path to the webpage
         return RedirectResponse(
-            url=f"/result?prediction={prediction}&explanation_text={explanation_text}&likert_scale_path={likert_scale_path}",
+            url=f"/result?prediction={prediction}&explanation_text={explanation_text}&likert_scale_path={likert_scale_path}&category={category}&probability={predicted_probability}",
             status_code=303
         )
 
@@ -114,6 +131,3 @@ async def predict(request: Request, image: UploadFile = File(...)):
             "error.html",
             {"request": request, "message": "The uploaded file is not recognized as an image file."}
         )
-
-
-
