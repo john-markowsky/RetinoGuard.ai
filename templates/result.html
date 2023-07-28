@@ -10,20 +10,32 @@
       <table class="ui celled table">
         <thead>
           <tr>
+            <th>Model</th>
             <th>Diagnosis</th>
-            <th>Explanation</th>
             <th>Confidence</th>
           </tr>
         </thead>
         <tbody>
           <tr>
+            <td>Inception</td>
+            <td>{{ category_inception }}</td>
+            <td>{{ probability_inception }}%</td>
+          </tr>
+          <tr>
+            <td>Xception</td>
+            <td>{{ category_xception }}</td>
+            <td>{{ probability_xception }}%</td>
+          </tr>
+          <tr>
+            <td>Ensemble</td>
             <td>{{ category }}</td>
-            <td>{{ explanation_text }}</td>
             <td>{{ probability }}%</td>
           </tr>
         </tbody>
       </table>
-    <a href="/submit" class="ui yellow button">Analyze Another Retinal Photo</a>
+      <img src="{{ superimposed_img_path }}" class="bordered-image" style="max-width:100%; height:auto;">
+      <a href="/submit" class="ui yellow button">Analyze Another Retinal Photo</a>
+    </div>
   </div>
 </div>
 {% endif %}
@@ -50,9 +62,16 @@
 </div>
 {% endif %}
 <style>
-  h3, th,
-  td {
+  h3, th, td {
     color: black !important;
+  }
+  .ui.yellow.button {
+    margin-top: 20px; 
+  }
+  .bordered-image {
+    border: 1.5px solid rgb(255, 255, 255);
+    width: 30%;
+    height: auto;
   }
 </style>
 {% endblock %}
