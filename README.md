@@ -37,7 +37,7 @@ The RetinoGuard.ai web application was developed using FastAPI and Python to cre
 ![Submit](https://user-images.githubusercontent.com/123923257/234384778-efed0ff5-fd3f-4123-a4ce-929a5c571c6e.png)
 
 Using advanced machine learning techniques, the system is capable of accurately predicting the severity of diabetic retinopathy based on the uploaded retinal image. Additionally, the system provides an explanation of the prediction to aid in the decision-making process of healthcare professionals.
-![Prediction](https://user-images.githubusercontent.com/123923257/234384721-b268fdf1-1c38-44e3-84e4-dfad1ec29991.png)
+![Grad-CAM intial](https://github.com/john-markowsky/retino-guard.ai/assets/123923257/04094960-ef3f-43ba-9d5b-3427ad7baf5a)
 
 ## Clients
 The clients we intend to serve are healthcare professionals, especially ophthalmologists and optometrists who are involved in the diagnosis and treatment of diabetic retinopathy patients. We imagine that clinics and hospitals which specialize in treating diabetic patients might also show interest as stakeholders in the RetinoGuard.ai project.
