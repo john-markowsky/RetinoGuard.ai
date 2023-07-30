@@ -2,11 +2,13 @@
 
 {% block content %}
 {% if prediction %}
+<!-- Display Diabetic Retinopathy prediction results if available -->
 <div class="ui centered grid">
   <div class=" ui eight wide column">
     <div class="ui segment">
       <h2 class="ui header">Diabetic Retinopathy Prediction Results</h2>
         
+      <!-- Table to show predictions from different models -->
       <table class="ui celled table">
         <thead>
           <tr>
@@ -17,23 +19,46 @@
         </thead>
         <tbody>
           <tr>
+            <!-- Display Inception model prediction -->
             <td>Inception</td>
             <td>{{ category_inception }}</td>
             <td>{{ probability_inception }}%</td>
           </tr>
           <tr>
+            <!-- Display Xception model prediction -->
             <td>Xception</td>
             <td>{{ category_xception }}</td>
             <td>{{ probability_xception }}%</td>
           </tr>
           <tr>
+            <!-- Display Ensemble (combined) model prediction -->
             <td>Ensemble</td>
             <td>{{ category }}</td>
             <td>{{ probability }}%</td>
           </tr>
         </tbody>
       </table>
-      <img src="{{ superimposed_img_path }}" class="bordered-image" style="max-width:100%; height:auto;">
+
+      <!-- Table to show Original and Grad-CAM Overlay images -->
+      <table class="ui celled table">
+        <thead>
+          <tr>
+            <th>Original Image</th>
+            <th>Heatmap Overlay</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <!-- Display Original Image -->
+            <td><img src="{{ original_img_path }}" style="max-width:100%; height:auto;"></td>
+            <!-- Display Grad-CAM Overlay Image -->
+            <td><img src="{{ superimposed_img_path }}" style="max-width:100%; height:auto;"></td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <!-- Button to allow users to analyze another retinal photo -->
       <a href="/submit" class="ui yellow button">Analyze Another Retinal Photo</a>
     </div>
   </div>
@@ -41,18 +66,22 @@
 {% endif %}
 
 {% if not prediction %}
+<!-- If no prediction available, prompt users to upload an image -->
 <div class="ui centered grid">
   <div class=" ui eight wide column">
     <div class="ui segment">
       <h2 class="ui header">Diabetic Retinopathy Prediction Results</h2>
       <p>No prediction available, please upload an image.</p>
+      <!-- Form to upload a retinal image for analysis -->
       <form class="ui form" method="POST" enctype="multipart/form-data" action="/predict" id="image-form">
         <div class="field">
           <label>Retinal Image</label>
           <input type="file" name="image" onchange="previewImage(event)">
         </div>
+        <!-- Button to trigger the image analysis -->
         <button class="ui yellow button" type="submit" id="submit-button">Analyze Image</button>
       </form>
+      <!-- Placeholder for displaying the preview of the uploaded image -->
       <div class="ui segment preview-image" style="display: none;">
         <h4 class="ui header">Preview Image</h4>
         <img id="image-preview" src="" alt="Preview Image">
@@ -62,6 +91,7 @@
 </div>
 {% endif %}
 <style>
+  /* Custom styles to modify appearance */
   h3, th, td {
     color: black !important;
   }

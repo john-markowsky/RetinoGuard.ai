@@ -4,26 +4,33 @@
 <div class="ui centered grid">
   <div class="eight wide column">
       <div class="ui raised very padded text container segment">
+        <!-- Error Message -->
         <div class="ui center aligned container">
           <img src="static/misc/error.png" style="max-width:10%; height:auto;">
           <h2 class="ui header">Whoops.. That didn't work! Please Try again:</h2>
         </div>
         <div class="ui divider"></div>
         <h2 class="ui header">Fundus Retinal Image Processor</h2>
+        <!-- Digital Eye Image -->
         <img src="static/misc/digital_eye.png" style="max-width:80%; height:auto;">
         <p>RetinoGuardAI is an AI-powered system for diagnosing diabetic retinopathy.</p>
-        <a href="/about" <p>What is diabetic retinopathy?</p></a>
+        <!-- Link to About Page -->
+        <a href="/about"><p>What is diabetic retinopathy?</p></a>
         <div class="ui divider"></div>
         <p>Please upload a retinal image below to receive a diagnosis:</p>
+        <!-- Image Upload Form -->
         <form class="ui form" method="POST" enctype="multipart/form-data" action="/predict" id="image-form">
           <div class="field">
             <label>Retinal Image</label>
+            <!-- Image Upload Input -->
             <input type="file" name="image" onchange="previewImage(event)">
           </div>
+          <!-- Submit Button -->
           <button class="ui yellow button" type="submit" id="submit-button">Analyze Image</button>
         </form>
         <div class="ui segment preview-image" style="display: none;">
           <h4 class="ui header">Preview Image</h4>
+          <!-- Image Preview Area -->
           <img id="image-preview" src="" alt="Preview Image">
         </div>
       </div>
@@ -37,25 +44,4 @@
       text-align: left !important;
     }
   </style>
-
-  <div class="ui dimmer" id="loader">
-    <div class="ui text loader">Loading...</div>
-  </div>
-{% endblock %}
-
-{% block custom_js %}
-  <script type="text/javascript">
-    const form = document.querySelector('#image-form');
-    const submitButton = document.querySelector('#submit-button');
-    const loader = document.querySelector('#loader');
-
-    form.addEventListener('submit', function(e) {
-      loader.classList.add('active');
-      submitButton.classList.add('disabled');
-    });
-
-    window.addEventListener('beforeunload', function() {
-      loader.classList.add('active');
-    });
-  </script>
 {% endblock %}

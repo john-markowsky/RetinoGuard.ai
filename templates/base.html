@@ -1,121 +1,117 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>RetinoGuard AI</title>
-	<!-- Semantic UI CSS -->
-	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
-	<!-- Custom CSS -->
-	<style type="text/css">
-		.ui.container.segment {
-    		color: black !important;
-  		}
-		img {
-			display: block;
-			margin: 0 auto;
-		}
-		.ui.yellow.button {
-			color: #000;
-			display: block;
-  			margin: 0 auto;
-		}
-		p {
-      		color: black;
-    	} 
-    	.ui.container.segment {
-      		text-align: left !important;
-    	}
-		body {
-			background-color: #5a5a5a;
-			color: #fff;
-		}
+    <title>RetinoGuard AI</title>
+    <!-- Semantic UI CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+    <!-- Custom CSS -->
+    <style type="text/css">
+        /* Custom styles for the web page */
 
-		.ui.inverted.menu {
-			background-color: #222;
-			border-color: #000;
-			box-shadow: none;
-		}
+        /* Styling for the main content */
+        .ui.container.segment {
+            color: black !important;
+        }
 
-		.ui.inverted.menu .item {
-			color: #fff;
-		}
+        /* Centering images */
+        img {
+            display: block;
+            margin: 0 auto;
+        }
 
-		.ui.inverted.menu .active.item {
-			background-color: #fbbd08;
-			color: #222;
-		}
+        /* Styling for the yellow button */
+        .ui.yellow.button {
+            color: #000;
+            display: block;
+            margin: 0 auto;
+        }
 
-		.ui.inverted.segment {
-			background-color: #222;
-			color: #fff;
-			border-color: #000;
-			box-shadow: none;
-		}
+        /* Styling for paragraphs */
+        p {
+            color: black;
+        }
 
-		.ui.inverted.segment h2.ui.header {
-			color: #fff;
-		}
+        /* Align the text to the left in the segment */
+        .ui.container.segment {
+            text-align: left !important;
+        }
 
-		.ui.inverted.segment input {
-			background-color: #fff;
-			color: #222;
-		}
+        /* Styling for the body */
+        body {
+            background-color: #5a5a5a;
+            color: #fff;
+        }
 
-		.ui.inverted.segment button.ui.button {
-			background-color: #fbbd08;
-			color: #222;
-		}
+        /* Inverted menu styles */
+        .ui.inverted.menu {
+            background-color: #222;
+            border-color: #000;
+            box-shadow: none;
+        }
 
-		.preview-image {
-			margin-top: 20px;
-			max-width: 500px;
-			max-height: 500px;
-		}
-	</style>
+        .ui.inverted.menu .item {
+            color: #fff;
+        }
+
+        .ui.inverted.menu .active.item {
+            background-color: #fbbd08;
+            color: #222;
+        }
+
+        /* Inverted segment styles */
+        .ui.inverted.segment {
+            background-color: #222;
+            color: #fff;
+            border-color: #000;
+            box-shadow: none;
+        }
+
+        .ui.inverted.segment h2.ui.header {
+            color: #fff;
+        }
+
+        .ui.inverted.segment input {
+            background-color: #fff;
+            color: #222;
+        }
+
+        .ui.inverted.segment button.ui.button {
+            background-color: #fbbd08;
+            color: #222;
+        }
+
+        /* Styling for the preview image */
+        .preview-image {
+            margin-top: 20px;
+            max-width: 500px;
+            max-height: 500px;
+        }
+    </style>
 </head>
 <body>
-	<!-- Navbar -->
-  <div class="ui inverted menu">
-	<div class="header item" >
-		<img src="static/logos/logo_small.png" class="ui image" href="/">
-		<span>RetinoGuardAI</span>
-	</div>
-	<a class="item" href="/">Home</a>
-	<a class="item" href="/about">About</a>
-	<a class="item" href="mailto:RetinoAI@gmail.com">Contact</a>
-	<a class="item" href="/submit">Retina Analyzer</a>
-    <!-- <div class="right menu">
-      <a class="item" href="#">Login</a>
-      <a class="item" href="#">Register</a> -->
+    <!-- Navbar -->
+    <div class="ui inverted menu">
+        <div class="header item">
+            <!-- Logo and website title -->
+            <img src="static/logos/logo_small.png" class="ui image" href="/">
+            <span>RetinoGuardAI</span>
+        </div>
+        <!-- Navigation links -->
+        <a class="item" href="/">Home</a>
+        <a class="item" href="/about">About</a>
+        <a class="item" href="mailto:RetinoAI@gmail.com">Contact</a>
+        <a class="item" href="/submit">Retina Analyzer</a>
+        <!-- Uncomment below lines if you have login and register links -->
+        <!-- <div class="right menu">
+            <a class="item" href="#">Login</a>
+            <a class="item" href="#">Register</a>
+        </div> -->
     </div>
-  </div>
-  
-  
 
-	<!-- Content -->
-	{% block content %}{% endblock %}
+    <!-- Content -->
+    {% block content %}{% endblock %}
 
-	<!-- Semantic UI JavaScript -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
-
-	<!-- Custom JavaScript -->
-	<script type="text/javascript">
-		const fileInput = document.querySelector('input[type="file"]');
-		const previewImage = document.querySelector('#image-preview');
-		const previewSegment = document.querySelector('.preview-image');
-
-		function previewImage(event) {
-			const file = event.target.files[0];
-			const reader = new FileReader();
-
-			reader.onload = function() {
-				previewImage.setAttribute('src', reader.result);
-				previewSegment.style.display = 'block';
-			};
-
-			reader.readAsDataURL(file);
-		}
-
-		fileInput.addEventListener('change', previewImage);
-	</script>
+    <!-- Semantic UI JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
 </body>
 </html>

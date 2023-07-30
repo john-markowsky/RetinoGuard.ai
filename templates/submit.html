@@ -11,6 +11,7 @@
         <div class="ui divider"></div>
         <p>As an optometrist or eye specialist, you can use RetinoGuardAI to analyze retinal images and receive a diagnosis of diabetic retinopathy with high accuracy and speed.</p>
         <p>Simply upload a retinal image below to receive a diagnosis:</p>
+        <!-- Form for uploading retinal image -->
         <form class="ui form" method="POST" enctype="multipart/form-data" action="/predict" id="image-form">
           <div class="field">
             <label>Retinal Image</label>
@@ -18,6 +19,7 @@
           </div>
           <button class="ui yellow button" type="submit" id="submit-button">Analyze Image</button>
         </form>
+        <!-- End of Form -->
         <div class="ui segment preview-image" style="display: none;">
           <h4 class="ui header">Preview Image</h4>
           <img id="image-preview" src="" alt="Preview Image">
@@ -36,25 +38,4 @@
     margin-top: 20px; 
   }
   </style>
-
-  <div class="ui dimmer" id="loader">
-    <div class="ui text loader">Loading...</div>
-  </div>
-{% endblock %}
-
-{% block custom_js %}
-  <script type="text/javascript">
-    const form = document.querySelector('#image-form');
-    const submitButton = document.querySelector('#submit-button');
-    const loader = document.querySelector('#loader');
-
-    form.addEventListener('submit', function(e) {
-      loader.classList.add('active');
-      submitButton.classList.add('disabled');
-    });
-
-    window.addEventListener('beforeunload', function() {
-      loader.classList.add('active');
-    });
-  </script>
 {% endblock %}
