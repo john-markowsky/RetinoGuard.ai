@@ -7,8 +7,8 @@ from PIL import Image
 import io
 
 # Load the models
-model_inception = load_model('.models/inception.hdf5')
-model_xception = load_model('.models/xception.hdf5')
+model_inception = load_model('.models/inception_best_model.hdf5')
+model_xception = load_model('.models/xception_best_model.hdf5')
 
 # Define the image generator for preprocessing
 datagen = ImageDataGenerator(
