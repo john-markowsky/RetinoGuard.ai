@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<div class="annotate-ui centered grid">
+    <div class="annotate-eight wide column">
+        <div class="annotate-custom-segment">
+            <h2 class="ui header">Annotation Task</h2>
+            
+            <!-- Main Table -->
+            <table class="ui celled table">
+                <thead>
+                    <tr class="annotate-header-row">
+                        <th>Your Diagnosis</th>
+                        <th>Model's Diagnosis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Image Annotation and Model's Diagnosis -->
+                    <tr>
+                        <td class="annotate-image-container">
+                            <div class="annotate-image-wrapper">
+                                <canvas id="annotationCanvas"></canvas>
+                            </div>
+                            <button id="clearCanvas">Clear</button>
+                        </td>
+                        <td class="annotate-image-container">
+                            <div class="annotate-image-wrapper">
+                                <img id="originalImage" src="{{ image_data['image_url'] }}" alt="Original Image">
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- DR Rating and Model Accuracy -->
+                    <tr class="annotate-header-row">
+                        <td>DR Rating</td>
+                        <td>Model Accuracy</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select name="diagnosis">
+                                <option value="0">Normal</option>
+                                <option value="1">Mild</option>
+                                <option value="2">Moderate</option>
+                                <option value="3">Severe</option>
+                                <option value="4">Proliferative</option>
+                            </select>
+                            <button type="submit">Submit Diagnosis</button>
+                        </td>
+                        <td>
+                            <select name="model-accuracy">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                            </select>
+                            <button type="submit">Submit Rating</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="ui yellow button" id="nextImage">Next Image</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    // Initialize canvas and context
+    const canvas = document.getElementById("annotationCanvas");
+    const ctx = canvas.getContext("2d");
+    let drawing = false;
+
+    // Load image into canvas
+    const image = new Image();
+    image.src = "{{ image_data['image_url'] }}";
+    image.onload = () => {
+        // Set canvas and container dimensions based on image's natural dimensions
+        const containerWidth = Math.min(image.width, 400); // 400 is max width
+        const containerHeight = Math.min(image.height, 400); // 400 is max height
+
+        // Set the #originalImage dimensions to match the canvas
+        const originalImage = document.getElementById("originalImage");
+        originalImage.width = containerWidth;
+        originalImage.height = containerHeight;
+        
+        // Set .image-wrapper dimensions
+        const imageWrappers = document.querySelectorAll(".image-wrapper");
+        imageWrappers.forEach(wrapper => {
+            wrapper.style.width = `${containerWidth}px`;
+            wrapper.style.height = `${containerHeight}px`;
+        });
+
+        canvas.width = containerWidth;
+        canvas.height = containerHeight;
+
+        // Draw the image onto the canvas, resizing it to fit within the container
+        ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, containerWidth, containerHeight);
+    };
+
+    // Mouse events for canvas drawing
+    canvas.addEventListener("mousedown", function(e) {
+        e.preventDefault();
+        drawing = true;
+    });
+    canvas.addEventListener("mouseup", function(e) {
+        e.preventDefault();
+        drawing = false;
+        ctx.beginPath();
+    });
+    canvas.addEventListener("mousemove", function(e) {
+        e.preventDefault();
+        draw(e);
+    });
+
+    // Prevent dragging of the image
+    canvas.addEventListener("dragstart", (event) => event.preventDefault());
+
+    // Function to handle drawing
+    function draw(event) {
+        if (!drawing) return;
+        ctx.lineWidth = 5;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "red";
+
+        ctx.lineTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
+    }
+
+    // Clear canvas
+    document.getElementById("clearCanvas").addEventListener("click", () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    });
+</script>
+
+<style>
+    /* Existing Styles */
+    .annotate-custom-segment {
+        background-color: #FFF;
+        color: #000;
+        padding: 1rem;
+    }
+    .annotate-header-row th, .annotate-header-row td {
+        background-color: #d4d4d4;
+        font-weight: bold;
+    }
+    .annotate-image-container {
+        padding: 0;
+        margin: 0;
+        text-align: center;
+        vertical-align: top;
+    }
+    .dropdown-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    td {
+        padding: 10px;
+        vertical-align: middle;
+    }
+
+    /* Updated Styles */
+    .annotate-ui.centered.grid {
+        width: 95%; /* Increase width as per your requirement */
+    }
+
+    .annotate-image-wrapper img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .annotate-image-wrapper {
+        overflow: hidden;
+        max-width: 450px; /* Adjust as required */
+        margin: 0 auto;
+    }
+    .annotate-ui.centered.grid {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh; /* Adjusting to the full viewport height */
+    }
+
+    /* This is to ensure the child content also stays centered */
+    .annotate-eight.wide.column {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+</style>
+{% endblock %}

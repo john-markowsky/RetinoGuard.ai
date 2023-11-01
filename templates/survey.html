@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="ui centered grid">
+    <div class="ui eight wide column">
+      <div class="ui raised very padded text container segment">
+        <div class="ui center aligned container">
+            <!-- Logo Image -->
+            <img src="static/logos/logo.png" style="max-width:100%; height:auto;">
+          </div> 
+        <h2 class="ui header">RetinoGuard User Feedback Survey</h2>
+        <form action="/submit_survey/" method="post">
+          <!-- General Information -->
+          <label for="profession">Profession:</label>
+          <select name="profession">
+            <option value="0">Ophthalmologist</option>
+            <option value="1">Optometrist</option>
+            <option value="2">Other Healthcare Professional</option>
+            <option value="3">Other</option>
+          </select>
+          <br>
+          <label for="years_of_experience">Years of Experience:</label>
+          <input type="text" name="years_of_experience">
+          <br>
+          
+          <!-- Usability -->
+          <label for="ease_of_navigation">How easy was it to navigate the RetinoGuard application?</label>
+          <select name="ease_of_navigation">
+            <option value="0">Very Easy</option>
+            <option value="1">Easy</option>
+            <option value="2">Neutral</option>
+            <option value="3">Difficult</option>
+            <option value="4">Very Difficult</option>
+          </select>
+          <br>
+          
+          <label for="user_interface_intuitive">Was the user interface intuitive?</label>
+          <select name="user_interface_intuitive">
+            <option value="0">Strongly Agree</option>
+            <option value="1">Agree</option>
+            <option value="2">Neutral</option>
+            <option value="3">Disagree</option>
+            <option value="4">Strongly Disagree</option>
+          </select>
+          <br>
+          
+          <!-- Model Performance -->
+          <label for="model_accuracy">How accurate do you find the model's predictions for Diabetic Retinopathy detection?</label>
+          <select name="model_accuracy">
+            <option value="0">Very Accurate</option>
+            <option value="1">Accurate</option>
+            <option value="2">Neutral</option>
+            <option value="3">Inaccurate</option>
+            <option value="4">Very Inaccurate</option>
+          </select>
+          <br>
+          
+          <label for="model_alignment">Did the model's predictions align with your expert opinion?</label>
+          <select name="model_alignment">
+            <option value="0">Always</option>
+            <option value="1">Mostly</option>
+            <option value="2">Sometimes</option>
+            <option value="3">Rarely</option>
+            <option value="4">Never</option>
+          </select>
+          <br>
+          
+          <label for="decision_confidence">How confident are you in making decisions based on the system's advice?</label>
+          <select name="decision_confidence">
+            <option value="0">Very Confident</option>
+            <option value="1">Confident</option>
+            <option value="2">Neutral</option>
+            <option value="3">Not Confident</option>
+            <option value="4">Very Not Confident</option>
+          </select>
+          <br>
+          
+          <!-- Visual Explanations (Grad-CAM) -->
+          <label for="grad_cam_usefulness">How useful did you find the Grad-CAM heatmaps in understanding the model's focus areas?</label>
+          <select name="grad_cam_usefulness">
+            <option value="0">Very Useful</option>
+            <option value="1">Useful</option>
+            <option value="2">Neutral</option>
+            <option value="3">Not Useful</option>
+            <option value="4">Very Not Useful</option>
+          </select>
+          <br>
+          
+          <label for="grad_cam_accuracy">Did the Grad-CAM heatmaps highlight the correct regions corresponding to disease symptoms?</label>
+          <select name="grad_cam_accuracy">
+            <option value="0">Always</option>
+            <option value="1">Mostly</option>
+            <option value="2">Sometimes</option>
+            <option value="3">Rarely</option>
+            <option value="4">Never</option>
+          </select>
+          <br>
+          
+          <!-- Additional Feedback -->
+          <label for="improvements_suggested">What improvements would you suggest for the RetinoGuard application?</label>
+          <textarea name="improvements_suggested"></textarea>
+          <br>
+          
+          <label for="recommend_retinoguard">Would you recommend RetinoGuard as an auxiliary tool for patient management in Diabetic Retinopathy?</label>
+          <select name="recommend_retinoguard">
+            <option value="0">Yes</option>
+            <option value="1">No</option>
+          </select>
+          <br>
+          
+          <input type="submit" value="Submit" class="ui button">
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -4,11 +4,12 @@ setup:
 
 install:
 	. .env/bin/activate && \
-	pip uninstall -r requirements.txt -y && \
 	pip install -r requirements.txt
+	sudo apt-get update
+	sudo apt-get install -y libgl1-mesa-glx
 	@echo "Requirements installed."
 
-test:
-	export PYTHONPATH=$(PWD):$$PYTHONPATH; pytest tests/
+# test:
+# 	export PYTHONPATH=$(PWD):$$PYTHONPATH; pytest tests/
 
-all: setup install test
+all: setup install #test

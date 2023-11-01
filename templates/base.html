@@ -86,6 +86,42 @@
             max-width: 500px;
             max-height: 500px;
         }
+        /* Additional Custom styles for the survey form */
+
+        /* Style the form container */
+        .ui.raised.very.padded.text.container.segment form {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Style the form labels and input fields without borders */
+        .ui.raised.very.padded.text.container.segment form label,
+        .ui.raised.very.padded.text.container.segment form select,
+        .ui.raised.very.padded.text.container.segment form input,
+        .ui.raised.very.padded.text.container.segment form textarea {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;  /* Removed the border */
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        /* Style the form submit button */
+        .ui.raised.very.padded.text.container.segment form input[type="submit"] {
+            background-color: #fbbd08;
+            color: #222;
+            cursor: pointer;
+        }
+
+        /* Hover effect for the form submit button */
+        .ui.raised.very.padded.text.container.segment form input[type="submit"]:hover {
+            background-color: #f9a602;
+        }
+
     </style>
 </head>
 <body>
@@ -93,7 +129,7 @@
     <div class="ui inverted menu">
         <div class="header item">
             <!-- Logo and website title -->
-            <img src="static/logos/logo_small.png" class="ui image" href="/">
+            <img src="/static/logos/logo_small.png" class="ui image" href="/">
             <span>RetinoGuardAI</span>
         </div>
         <!-- Navigation links -->
@@ -101,6 +137,7 @@
         <a class="item" href="/about">About</a>
         <a class="item" href="mailto:RetinoAI@gmail.com">Contact</a>
         <a class="item" href="/submit">Retina Analyzer</a>
+        <a class="item" href="/consent">User Survey</a>
         <!-- Uncomment below lines if you have login and register links -->
         <!-- <div class="right menu">
             <a class="item" href="#">Login</a>
@@ -110,6 +147,9 @@
 
     <!-- Content -->
     {% block content %}{% endblock %}
+    {% block script %}{% endblock %}
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- Semantic UI JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
