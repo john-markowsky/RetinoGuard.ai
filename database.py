@@ -20,6 +20,7 @@ class User(Base):
     profession = Column(Integer)
     years_of_experience = Column(String)
     responses = relationship("Response", back_populates="user")
+    annotations = relationship("Annotation", back_populates="user")
 
 # Create a table for survey responses
 class Response(Base):
@@ -37,9 +38,18 @@ class Response(Base):
     recommend_retinoguard = Column(Integer)
     user = relationship("User", back_populates="responses")
 
-# Check and create tables only if they don't exist
-if "users" not in existing_tables or "responses" not in existing_tables:
-    Base.metadata.create_all(bind=engine)
+# Create a table for annotations
+class Annotation(Base):
+    __tablename__ = 'annotations'
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    image_path = Column(String)
+    annotated_image_path = Column(String)
+    diagnosis = Column(String)
+    user = relationship("User", back_populates="annotations")
+
+# Check and create tables if they don't exist
+Base.metadata.create_all(bind=engine)
 
 # Initialize session
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

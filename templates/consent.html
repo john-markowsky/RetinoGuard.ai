@@ -46,18 +46,42 @@
                     For any questions or concerns about the study, please <a href="mailto:RetinoAI@gmail.com">contact us</a>.</p>
             </div>
 
-            <!-- Agreement Checkbox and Continue Button -->
-            <div style="margin-top:15px;">
-                <div class="ui checkbox">
-                    <input type="checkbox" name="agree">
-                    <label>I have read and agree to the terms.</label>
+            <form id="consentForm" action="/annotate/0">
+                <!-- Agreement Checkbox -->
+                <div style="margin-top:15px; margin-bottom:15px; display: flex; align-items: center;">
+                    <div class="ui checkbox" style="flex: 1;">
+                        <input type="checkbox" name="agree" id="agreeCheckbox">
+                        <label for="agreeCheckbox"></label>
+                    </div>
+                    <label for="agreeCheckbox" style="flex: 9; margin-left: 10px;">I have read and agree to the terms.</label>
                 </div>
-                <a href="/annotate/0" class="ui green button">Continue</a>
-                <a href="/" class="ui red button">Decline</a>
-            </div>
+                <!-- Continue and Decline Buttons -->
+                <div>
+                    <button type="button" class="ui green button" id="continueButton">Continue</button>
+                    <a href="/" class="ui red button">Decline</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<!-- JavaScript to handle checkbox change and continue button click -->
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const form = document.getElementById('consentForm');
+        const checkbox = document.getElementById('agreeCheckbox');
+        const continueButton = document.getElementById('continueButton');
+        
+        // Add click event listener to continue button
+        continueButton.addEventListener('click', (event) => {
+            if (checkbox.checked) {
+                form.submit();
+            } else {
+                alert('You must agree to the terms before continuing.');
+            }
+        });
+    });
+</script>
 
 <!-- Custom Style for Paragraphs -->
 <style>

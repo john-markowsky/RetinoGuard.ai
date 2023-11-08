@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-
 {% block content %}
 <div class="annotate-ui centered grid">
     <div class="annotate-eight wide column">
@@ -20,13 +19,16 @@
                     <tr>
                         <td class="annotate-image-container">
                             <div class="annotate-image-wrapper">
+                                <!-- Original Image for Annotation -->
+                                <img id="originalImage" src="{{ image_data.original_image_url }}" alt="Original Image">
                                 <canvas id="annotationCanvas"></canvas>
                             </div>
                             <button id="clearCanvas">Clear</button>
                         </td>
                         <td class="annotate-image-container">
                             <div class="annotate-image-wrapper">
-                                <img id="originalImage" src="{{ image_data['image_url'] }}" alt="Original Image">
+                                <!-- Grad-CAM Image -->
+                                <img id="gradcamImage" src="{{ image_data.grad_cam_image_url }}" alt="Grad-CAM Image">
                             </div>
                         </td>
                     </tr>
@@ -42,7 +44,7 @@
                                 <option value="1">Mild</option>
                                 <option value="2">Moderate</option>
                                 <option value="3">Severe</option>
-                                <option value="4">Proliferative</option>
+                                <option value="4">Proliferative DR</option>
                             </select>
                             <button type="submit">Submit Diagnosis</button>
                         </td>
@@ -73,93 +75,138 @@
 
 {% block script %}
 <script>
-    // Initialize canvas and context
-    const canvas = document.getElementById("annotationCanvas");
-    const ctx = canvas.getContext("2d");
-    let drawing = false;
+    document.addEventListener('DOMContentLoaded', function() {
+        const canvas = document.getElementById('annotationCanvas');
+        const ctx = canvas.getContext('2d');
+        const originalImage = document.getElementById('originalImage');
+        let isDrawing = false;
+        let startX = 0;
+        let startY = 0;
 
-    // Load image into canvas
-    const image = new Image();
-    image.src = "{{ image_data['image_url'] }}";
-    image.onload = () => {
-        // Set canvas and container dimensions based on image's natural dimensions
-        const containerWidth = Math.min(image.width, 400); // 400 is max width
-        const containerHeight = Math.min(image.height, 400); // 400 is max height
+        function draw(e) {
+            if (!isDrawing) return;
 
-        // Set the #originalImage dimensions to match the canvas
-        const originalImage = document.getElementById("originalImage");
-        originalImage.width = containerWidth;
-        originalImage.height = containerHeight;
-        
-        // Set .image-wrapper dimensions
-        const imageWrappers = document.querySelectorAll(".image-wrapper");
-        imageWrappers.forEach(wrapper => {
-            wrapper.style.width = `${containerWidth}px`;
-            wrapper.style.height = `${containerHeight}px`;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+            // Set up the drawing color and line width
+            ctx.strokeStyle = 'blue'; // Change 'red' to whatever color you prefer
+            ctx.lineWidth = 5; // Adjust the line width as needed
+
+        }
+
+        function stopDrawing(e) {
+            if (!isDrawing) return;
+            isDrawing = false;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+
+        function resizeCanvasToImage() {
+            // Use the actual rendered width of the image, not just the naturalWidth
+            const desiredWidth = originalImage.clientWidth; // This will get the width as rendered on the page
+            const aspectRatio = originalImage.naturalHeight / originalImage.naturalWidth;
+            const desiredHeight = desiredWidth * aspectRatio;
+
+            // Set the image dimensions
+            originalImage.style.width = `${desiredWidth}px`;
+            originalImage.style.height = `${desiredHeight}px`;
+
+            // Set the canvas dimensions to match the image
+            canvas.width = desiredWidth;
+            canvas.height = desiredHeight;
+
+            // Adjust position if needed
+            canvas.style.top = `${originalImage.offsetTop}px`;
+            canvas.style.left = `${originalImage.offsetLeft}px`;
+        }
+
+        // Make sure to call resizeCanvasToImage when the image loads to set initial size
+        originalImage.onload = resizeCanvasToImage; 
+
+
+        // Call this function to ensure canvas is resized appropriately
+        function alignCanvasWithImage() {
+            if (originalImage.complete && originalImage.naturalHeight !== 0) {
+                resizeCanvasToImage();
+            } else {
+                originalImage.onload = resizeCanvasToImage;
+            }
+        }
+
+        // Setup the event listeners for drawing
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Call this function when the document is ready to ensure proper alignment
+        alignCanvasWithImage();
+
+        // Call this function on window resize with debounce to avoid performance issues
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resizeCanvasToImage, 250); // Debounce the resize events
         });
 
-        canvas.width = containerWidth;
-        canvas.height = containerHeight;
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
 
-        // Draw the image onto the canvas, resizing it to fit within the container
-        ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, containerWidth, containerHeight);
-    };
+        document.getElementById('clearCanvas').addEventListener('click', clearCanvas);
 
-    // Mouse events for canvas drawing
-    canvas.addEventListener("mousedown", function(e) {
-        e.preventDefault();
-        drawing = true;
-    });
-    canvas.addEventListener("mouseup", function(e) {
-        e.preventDefault();
-        drawing = false;
-        ctx.beginPath();
-    });
-    canvas.addEventListener("mousemove", function(e) {
-        e.preventDefault();
-        draw(e);
     });
 
-    // Prevent dragging of the image
-    canvas.addEventListener("dragstart", (event) => event.preventDefault());
-
-    // Function to handle drawing
-    function draw(event) {
-        if (!drawing) return;
-        ctx.lineWidth = 5;
-        ctx.lineCap = "round";
-        ctx.strokeStyle = "red";
-
-        ctx.lineTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
-    }
-
-    // Clear canvas
-    document.getElementById("clearCanvas").addEventListener("click", () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-    });
 </script>
 
 <style>
-    /* Existing Styles */
+    /* General Styles */
     .annotate-custom-segment {
         background-color: #FFF;
-        color: #000;
+        color: #000000;
         padding: 1rem;
     }
-    .annotate-header-row th, .annotate-header-row td {
+    .annotate-header-row th {
+        width: 50%; /* Each header cell takes up half the table's width */
+        text-align: center;
         background-color: #d4d4d4;
         font-weight: bold;
     }
-    .annotate-image-container {
-        padding: 0;
-        margin: 0;
-        text-align: center;
-        vertical-align: top;
+
+    .annotate-image-wrapper img,
+    #annotationCanvas {
+        width: 400px; /* Set a fixed width for the images and canvas */
+        height: auto; /* Height will scale automatically to preserve aspect ratio */
+        object-fit: contain; /* Ensures the content is scaled correctly */
     }
+    img {
+        max-width: 100%;
+        height: auto; /* Keep aspect ratio */
+        display: block; /* Remove extra space below the image */
+    }
+    #annotationCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none; /* Ensures the image below can still trigger load events */
+    }
+
+    /* Clear Button */
+    #clearCanvas {
+        margin-top: 10px; /* Space above the button */
+    }
+
+    /* Dropdown and Table Styling */
     .dropdown-container {
         display: flex;
         flex-direction: column;
@@ -170,33 +217,58 @@
         vertical-align: middle;
     }
 
-    /* Updated Styles */
+    /* Responsiveness and Centering */
     .annotate-ui.centered.grid {
-        width: 95%; /* Increase width as per your requirement */
+        width: 95%; /* Increase width if necessary */
+        margin: auto; /* Center grid in its container */
     }
 
-    .annotate-image-wrapper img {
-        max-width: 100%;
-        height: auto;
-    }
-
-    .annotate-image-wrapper {
-        overflow: hidden;
-        max-width: 450px; /* Adjust as required */
-        margin: 0 auto;
-    }
+    /* Centering the UI */
     .annotate-ui.centered.grid {
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh; /* Adjusting to the full viewport height */
+        min-height: 100vh; /* Full viewport height */
     }
 
-    /* This is to ensure the child content also stays centered */
+    /* Ensuring content in columns is centered */
     .annotate-eight.wide.column {
         display: flex;
         flex-direction: column;
         justify-content: center;
     }
+
+    /* Image and Canvas Wrapper */
+    .annotate-image-wrapper {
+        position: relative; /* Establishes a positioning context for absolutely positioned elements inside */
+        width: 400px; /* Fixed width for the images and canvas */
+        height: auto; /* Height will scale automatically to preserve aspect ratio */
+        margin: 0 auto; /* Center if necessary */
+    }
+
+    .annotate-image-wrapper img,
+    .annotate-image-wrapper canvas {
+        width: 100%; /* Will take the full width of the .annotate-image-wrapper */
+        height: auto; /* Height will scale automatically to preserve aspect ratio */
+        object-fit: contain; /* Ensures the content is scaled correctly */
+        display: block; /* Will ensure no inline spacing issues */
+    }
+
+    /* Table Cell Styling */
+    .annotate-header-row th, 
+    .annotate-header-row td {
+        width: auto; /* Allows cells to adjust based on content size */
+        text-align: center; /* Center-aligns content */
+        vertical-align: top; /* Aligns content to the top of the cell */
+    }
+
+    /* Ensure the canvas has pointer events enabled for drawing */
+    #annotationCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: auto; /* This change allows the canvas to capture mouse events for drawing */
+    }
+
 </style>
 {% endblock %}

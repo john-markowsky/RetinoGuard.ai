@@ -35,8 +35,12 @@ def add_routes(app: FastAPI):
 
     @app.get("/annotate/{image_id}")
     async def annotate(request: Request, image_id: str):
-        image_data = {"image_id": image_id, "image_url": f"/static/misc/test_imgs/{image_id}.png"}
+        original_image_url = f"/static/survey/original/{image_id}.png"
+        grad_cam_image_url = f"/static/survey/gradcam/{image_id}.jpg"
+        image_data = {"image_id": image_id, "original_image_url": original_image_url, "grad_cam_image_url": grad_cam_image_url}
         return templates.TemplateResponse("annotate.html", {"request": request, "image_data": image_data})
+
+
 
     @app.get("/survey")
     async def survey_page(request: Request):
