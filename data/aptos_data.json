@@ -1,0 +1,132 @@
+[
+  {
+    "image_id": "000c1434d8d7",
+    "aptos_dr_rating": 2,
+    "predictions": [
+      {
+        "model": "Inception",
+        "diagnosis": "2 - Moderate",
+        "confidence": "100%"
+      }
+    ],
+    "original_path": "/data/original/000c1434d8d7.png",
+    "grad_cam_path": "/data/grad_cam/000c1434d8d7.jpg"
+  },
+  {
+    "image_id": "001639a390f0",
+    "aptos_dr_rating": 4,
+    "predictions": [
+      {
+        "model": "Inception",
+        "diagnosis": "4 - Proliferative",
+        "confidence": "98%"
+      }
+    ],
+    "original_path": "/data/original/001639a390f0.png",
+    "grad_cam_path": "/data/grad_cam/001639a390f0.jpg"
+  },
+  {
+    "image_id": "0024cdab0c1e",
+    "aptos_dr_rating": 1,
+    "predictions": [
+      {
+        "model": "Inception",
+        "diagnosis": "1 - Mild",
+        "confidence": "92%"
+      }
+    ],
+    "original_path": "/data/original/0024cdab0c1e.png",
+    "grad_cam_path": "/data/grad_cam/0024cdab0c1e.jpg"
+  },
+  {
+    "image_id": "002c21358ce6",
+    "aptos_dr_rating": 0,
+    "predictions": [
+      {
+        "model": "Inception",
+        "diagnosis": "0 - Normal",
+        "confidence": "100%"
+      }
+    ],
+    "original_path": "/data/original/002c21358ce6.png",
+    "grad_cam_path": "/data/grad_cam/002c21358ce6.jpg"
+  },
+  {
+    "image_id": "0083ee8054ee",
+    "aptos_dr_rating": 4,
+    "predictions": [
+      {
+        "model": "Inception",
+        "diagnosis": "4 - Proliferative",
+        "confidence": "95%"
+      }
+    ],
+    "original_path": "/data/original/0083ee8054ee.png",
+    "grad_cam_path": "/data/grad_cam/0083ee8054ee.jpg"
+  },
+  {
+    "image_id": "0097f532ac9f",
+    "aptos_dr_rating": 0,
+    "predictions": [
+      {
+        "model": "Inception",
+        "diagnosis": "0 - Normal",
+        "confidence": "100%"
+      }
+    ],
+    "original_path": "/data/original/0097f532ac9f.png",
+    "grad_cam_path": "/data/grad_cam/0097f532ac9f.jpg"
+  },
+  {
+    "image_id": "00a8624548a9",
+    "aptos_dr_rating": 2,
+    "predictions": [
+      {
+        "model": "Inception",
+        "diagnosis": "2 - Moderate",
+        "confidence": "99%"
+      }
+    ],
+    "original_path": "/data/original/00a8624548a9.png",
+    "grad_cam_path": "/data/grad_cam/00a8624548a9.jpg"
+  },
+  {
+    "image_id": "00cb6555d108",
+    "aptos_dr_rating": 1,
+    "predictions": [
+      {
+        "model": "Inception",
+        "diagnosis": "1 - Mild",
+        "confidence": "96%"
+      }
+    ],
+    "original_path": "/data/original/00cb6555d108.png",
+    "grad_cam_path": "/data/grad_cam/00cb6555d108.jpg"
+  },
+  {
+    "image_id": "00e4ddff966a",
+    "aptos_dr_rating": 2,
+    "predictions": [
+      {
+        "model": "Inception",
+        "diagnosis": "2 - Moderate",
+        "confidence": "96%"
+      }
+    ],
+    "original_path": "/data/original/00e4ddff966a.png",
+    "grad_cam_path": "/data/grad_cam/00e4ddff966a.jpg"
+  },
+  {
+    "image_id": "0104b032c141",
+    "aptos_dr_rating": 3,
+    "predictions": [
+      {
+        "model": "Inception",
+        "diagnosis": "3 - Severe",
+        "confidence": "96%"
+      }
+    ],
+    "original_path": "/data/original/0104b032c141.png",
+    "grad_cam_path": "/data/grad_cam/0104b032c141.jpg"
+  }
+]

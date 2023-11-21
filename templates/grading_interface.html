@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="ui container segment">
+  <h2 class="ui header">Model Accuracy Grading</h2>
+  
+  <!-- Instructions for the expert in a structured bullet-point format -->
+  <div class="ui message">
+    <div class="header">
+      Survey Instructions
+    </div>
+    <ol class="instructions-list">
+      <li>Analyze the retinal image provided and assign a Retinopathy Severity Diagnosis.</li>
+      <li>Upon submission of your rating, a RetinoGuard.AI model-generated image and diagnosis will appear below for review.</li>
+      <li>Evaluate the model's prediction and rate the accuracy of the visual diagnosis and indicated disease severity.</li>
+    </ol>
+  </div>
+  
+  <!-- Container for images and grading forms -->
+  <div id="image-grading-container">
+    {% if grading_data %}
+      <!-- Loop through images and create a form for each -->
+      {% for item in grading_data %}
+      <div class="image-grading-form" id="form-{{ item.image_id }}">
+      
+        <!-- Heading for the original image -->
+        <h3 class="ui header">Original Image</h3>
+        <!-- Reference the correct image paths -->
+        <img src="/data/original/{{ item.image_id }}.png" alt="Original Image" class="ui image grading-image">
+        
+        <!-- Grading form -->
+        <form class="ui form" action="/submit_grade" method="post">
+          <input type="hidden" name="image_id" value="{{ item.image_id }}">
+          <div class="field">
+            <label for="dr-rating-{{ item.image_id }}">Retinopathy Severity Diagnosis:</label>
+            <select id="dr-rating-{{ item.image_id }}" name="dr_rating" required>
+              <option value="">Select Rating</option>
+              <option value="0">0 - Normal</option>
+              <option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option>
+              <option value="3">3 - Severe</option>
+              <option value="4">4 - Proliferative</option>
+            </select>
+          </div>
+          <button class="ui yellow button" type="submit">Submit Rating</button>
+        </form>
+
+        <!-- Container for model predictions, initially hidden -->
+        <div class="model-predictions" id="predictions-{{ item.image_id }}" style="display: none;">
+          <h3 class="ui header">Model Prediction</h3>
+          <img src="/data/grad_cam/{{ item.image_id }}.jpg" alt="Grad-CAM Overlay" class="grading-image">
+          <h3>RetinoGuard's Diagnosis: {{ item.predictions[0].diagnosis }}</h3>
+          <!-- <p>Confidence: {{ item.predictions[0].confidence }}%</p> -->
+
+          <!-- Additional form for accuracy assessment -->
+          <form class="ui form" action="/submit_accuracy" method="post">
+            <input type="hidden" name="image_id" value="{{ item.image_id }}">
+            <div class="field">
+              <label for="visual-accuracy-{{ item.image_id }}">Visual Diagnosis Accuracy:</label>
+              <select id="visual-accuracy-{{ item.image_id }}" name="visual_accuracy" required>
+                <option value="">Select Accuracy</option>
+                <option value="4">4 - Highly Accurate</option>
+                <option value="3">3 - Moderately Accurate</option>
+                <option value="2">2 - Somewhat Accurate</option>
+                <option value="1">1 - Inaccurate</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="severity-accuracy-{{ item.image_id }}">Disease Severity Accuracy:</label>
+              <select id="severity-accuracy-{{ item.image_id }}" name="severity_accuracy" required>
+                <option value="">Select Accuracy</option>
+                <option value="4">4 - Highly Accurate</option>
+                <option value="3">3 - Moderately Accurate</option>
+                <option value="2">2 - Somewhat Accurate</option>
+                <option value="1">1 - Inaccurate</option>
+              </select>
+            </div>
+            <button class="ui yellow button" type="submit">Submit Feedback</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p>No data available for grading.</p>
+    {% endif %}
+      <div class="ui message">
+        <div class="header">
+          We Value Your Feedback
+        </div>
+        <p>Thank you for contributing to the accuracy of our AI model. Please take a moment to share your experience and help us improve by completing a short survey.</p>
+        <a href="/survey" class="ui large button">Go to Feedback Survey</a>
+      </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.ui.form').forEach(form => {
+          form.addEventListener('submit', async event => {
+              event.preventDefault();
+              const formData = new FormData(event.target);
+              const imageId = formData.get('image_id');
+              const drRating = formData.get('dr_rating');
+  
+              const response = await fetch('/submit_grade', {
+                  method: 'POST',
+                  body: formData
+              });
+              const result = await response.json();
+  
+              if(result.status === 'success') {
+                  // Reveal the model predictions
+                  document.getElementById(`predictions-${result.image_id}`).style.display = 'block';
+              } else {
+                  // Handle error
+                  console.error('Error submitting grade');
+              }
+          });
+      });
+  });
+</script>
+<style>
+  /* Style for the images in the grading interface */
+  .grading-image {
+    max-width: 100%; /* set a max width for the images */
+    max-height: 300px; /* set a max height for the images */
+    object-fit: cover; /* this will ensure the images cover the area without stretching */
+    border: 1px solid #ccc; /* optional: adds a light border around the image */
+    margin-bottom: 10px; /* adds some space below the image */
+  }
+
+  /* Ensure the form and images are aligned nicely */
+  .image-grading-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  /* Style adjustments for the model predictions to match image size */
+  .model-predictions {
+    text-align: center; /* center the text inside this div */
+    display: none; /* keep it hidden initially */
+  }
+
+  /* Ensure the prediction images have the same size as the original images */
+  .model-predictions img {
+    max-height: 300px; /* same max height as the original images */
+    object-fit: cover; /* cover the area without stretching */
+    margin-bottom: 10px; /* same bottom margin for consistency */
+  }
+  /* Larger font size for instructions
+  .instructions-list {
+    font-size: 1.2em; /* Adjust the value as needed */
+  } */
+</style>
+
+{% endblock %}

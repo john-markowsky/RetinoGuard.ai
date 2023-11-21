@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from PIL import Image, UnidentifiedImageError
 import io
+import json
 
 from models import preprocess_image, predict, model_inception
 from categories import get_category, get_explanation_text
@@ -10,6 +11,18 @@ from image_processing import generate_gradcam_heatmap
 from database import SessionLocal, User, Response
 
 templates = Jinja2Templates(directory="templates")
+
+grading_data = []
+
+# Function to load grading data from the JSON file
+def load_grading_data():
+    global grading_data
+    with open('data/aptos_data.json', 'r') as file:
+        grading_data = json.load(file)
+
+# Call the function to load the data when the app starts
+load_grading_data()
+
 
 def add_routes(app: FastAPI):
     
@@ -32,16 +45,28 @@ def add_routes(app: FastAPI):
     @app.get("/consent")
     async def consent(request: Request):
         return templates.TemplateResponse("consent.html", {"request": request})
+    
+    @app.get("/instructions")
+    async def instructions(request: Request):
+        return templates.TemplateResponse("instructions.html", {"request": request})
+    
+    @app.get("/grading")
+    async def grading(request: Request):
+        # Pass the loaded grading data to the template
+        return templates.TemplateResponse("grading_interface.html", {"request": request, "grading_data": grading_data})
 
-    @app.get("/annotate/{image_id}")
-    async def annotate(request: Request, image_id: str):
-        original_image_url = f"/static/survey/original/{image_id}.png"
-        grad_cam_image_url = f"/static/survey/gradcam/{image_id}.jpg"
-        image_data = {"image_id": image_id, "original_image_url": original_image_url, "grad_cam_image_url": grad_cam_image_url}
-        return templates.TemplateResponse("annotate.html", {"request": request, "image_data": image_data})
-
-
-
+    @app.post("/submit_grade")
+    async def submit_grade(request: Request):
+        form_data = await request.form()
+        image_id = form_data['image_id']
+        dr_rating = form_data['dr_rating']
+        
+        # Logic to update database or JSON file with new rating
+        # ...
+        
+        # Respond with a JSON confirmation
+        return JSONResponse(content={"status": "success", "image_id": image_id})
+    
     @app.get("/survey")
     async def survey_page(request: Request):
         return templates.TemplateResponse("survey.html", {"request": request})

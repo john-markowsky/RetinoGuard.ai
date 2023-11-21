@@ -5,8 +5,6 @@
     <div class="ui eight wide column">
       <div class="ui raised very padded text container segment">
         <div class="ui center aligned container">
-            <!-- Logo Image -->
-            <img src="static/logos/logo.png" style="max-width:100%; height:auto;">
           </div> 
         <h2 class="ui header">RetinoGuard User Feedback Survey</h2>
         <form action="/submit_survey/" method="post">
@@ -22,28 +20,7 @@
           <label for="years_of_experience">Years of Experience:</label>
           <input type="text" name="years_of_experience">
           <br>
-          
-          <!-- Usability -->
-          <label for="ease_of_navigation">How easy was it to navigate the RetinoGuard application?</label>
-          <select name="ease_of_navigation">
-            <option value="0">Very Easy</option>
-            <option value="1">Easy</option>
-            <option value="2">Neutral</option>
-            <option value="3">Difficult</option>
-            <option value="4">Very Difficult</option>
-          </select>
-          <br>
-          
-          <label for="user_interface_intuitive">Was the user interface intuitive?</label>
-          <select name="user_interface_intuitive">
-            <option value="0">Strongly Agree</option>
-            <option value="1">Agree</option>
-            <option value="2">Neutral</option>
-            <option value="3">Disagree</option>
-            <option value="4">Strongly Disagree</option>
-          </select>
-          <br>
-          
+
           <!-- Model Performance -->
           <label for="model_accuracy">How accurate do you find the model's predictions for Diabetic Retinopathy detection?</label>
           <select name="model_accuracy">

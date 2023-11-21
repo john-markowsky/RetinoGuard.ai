@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="ui container segment">
+  <h1>Welcome to the RetinoGuard AI Survey</h1>
+  
+  <div class="ui message">
+    <div class="header">
+      Understanding Your Role
+    </div>
+    <p>This interface is designed to allow experts like you to evaluate retinal images and provide a critical assessment of our AI model's predictions.</p>
+  </div>
+  
+  <div class="ui message">
+    <div class="header">
+      Instructions
+    </div>
+    <ol>
+      <li>
+        <strong>Initial Analysis:</strong>
+        <ul>
+          <li>Analyze the provided retinal image (1ST Image).</li>
+          <li>Select the appropriate DR rating from the drop-down menu.</li>
+          <li>Submit your rating by clicking 'Submit Rating'.</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Model Prediction Review:</strong>
+        <ul>
+          <li>Upon submission, the AI model's prediction will be displayed (2ND Image).</li>
+          <li>Compare the model's prediction to your initial analysis.</li>
+          <li>Select an accuracy score for the visual diagnosis and disease severity from the drop-down menus.</li>
+          <li>Submit your feedback by clicking 'Submit Feedback'.</li>
+        </ul>
+      </li>
+    </ol>
+    <!-- Screenshot for the instructions -->
+    <img src="/static/misc/instructions-1.png" alt="Grading Instructions Step 1" class="ui centered image">
+  </div>
+  
+  <div class="ui message">
+    <div class="header">
+      What to Expect Next
+    </div>
+    <p>Once you submit your ratings, you'll receive immediate feedback on the model's performance. Thank you for your valuable contribution to improving AI diagnostics in healthcare.</p>
+    <a href="/grading" class="ui large button">Start Grading</a>
+  </div>
+</div>
+{% endblock %}
