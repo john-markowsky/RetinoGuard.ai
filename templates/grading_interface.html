@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="ui container segment">
-  <h2 class="ui header">Model Accuracy Grading</h2>
+  <h2 class="ui header">(1/2) Model Accuracy Grading</h2>
   
   <!-- Instructions for the expert in a structured bullet-point format -->
   <div class="ui message">
@@ -31,6 +31,7 @@
         <!-- Grading form -->
         <form class="ui form" action="/submit_grade" method="post">
           <input type="hidden" name="image_id" value="{{ item.image_id }}">
+          <input type="hidden" name="user_id" value="{{ user_id }}">
           <div class="field">
             <label for="dr-rating-{{ item.image_id }}">Retinopathy Severity Diagnosis:</label>
             <select id="dr-rating-{{ item.image_id }}" name="dr_rating" required>
@@ -55,27 +56,28 @@
           <!-- Additional form for accuracy assessment -->
           <form class="ui form" action="/submit_accuracy" method="post">
             <input type="hidden" name="image_id" value="{{ item.image_id }}">
+            <input type="hidden" name="user_id" value="{{ user_id }}">
             <div class="field">
               <label for="visual-accuracy-{{ item.image_id }}">Visual Diagnosis Accuracy:</label>
               <select id="visual-accuracy-{{ item.image_id }}" name="visual_accuracy" required>
                 <option value="">Select Accuracy</option>
-                <option value="4">4 - Highly Accurate</option>
-                <option value="3">3 - Moderately Accurate</option>
-                <option value="2">2 - Somewhat Accurate</option>
-                <option value="1">1 - Inaccurate</option>
+                <option value="Highly Accurate">Highly Accurate</option>
+                <option value="Moderately Accurate">Moderately Accurate</option>
+                <option value="Somewhat Accurate">Somewhat Accurate</option>
+                <option value="Inaccurate">Inaccurate</option>
               </select>
             </div>
             <div class="field">
               <label for="severity-accuracy-{{ item.image_id }}">Disease Severity Accuracy:</label>
               <select id="severity-accuracy-{{ item.image_id }}" name="severity_accuracy" required>
                 <option value="">Select Accuracy</option>
-                <option value="4">4 - Highly Accurate</option>
-                <option value="3">3 - Moderately Accurate</option>
-                <option value="2">2 - Somewhat Accurate</option>
-                <option value="1">1 - Inaccurate</option>
+                <option value="Highly Accurate">Highly Accurate</option>
+                <option value="Moderately Accurate">Moderately Accurate</option>
+                <option value="Somewhat Accurate">Somewhat Accurate</option>
+                <option value="Inaccurate">Inaccurate</option>
               </select>
             </div>
-            <button class="ui yellow button" type="submit">Submit Feedback</button>
+            <button class="ui yellow button" type="submit">Submit Rating</button>
           </form>
         </div>
       </div>
@@ -83,13 +85,18 @@
     {% else %}
       <p>No data available for grading.</p>
     {% endif %}
-      <div class="ui message">
-        <div class="header">
-          We Value Your Feedback
-        </div>
-        <p>Thank you for contributing to the accuracy of our AI model. Please take a moment to share your experience and help us improve by completing a short survey.</p>
-        <a href="/survey" class="ui large button">Go to Feedback Survey</a>
+    
+    <div class="ui message">
+      <div class="header">
+        Final Step: User Feedback Survey
       </div>
+      <p>As the final step, we invite you to share your feedback through a brief survey. This survey aims to gather your professional opinion on the model's accuracy, the alignment of its predictions with your expert opinion, the usefulness of the Grad-CAM visualizations, and more.</p>
+      <p>Your insights are critical to the continuous improvement of RetinoGuard's AI diagnostics. The survey also includes questions about your profession and experience, which will help us understand the context of your feedback.</p>
+      <p>Completing this survey will provide us with valuable information to enhance our model and ensure it meets the high standards required for healthcare applications. It should only take a few minutes of your time.</p>
+      <a href="/survey?user_id={{ user_id }}" class="ui large green button">Proceed to Feedback Survey</a>
+    </div>
+  </div>
+    
   </div>
 </div>
 {% endblock %}
@@ -100,27 +107,51 @@
       document.querySelectorAll('.ui.form').forEach(form => {
           form.addEventListener('submit', async event => {
               event.preventDefault();
+              const submitButton = event.target.querySelector('button[type="submit"]');
+              // Disable the button right after the form is submitted
+              submitButton.disabled = true;
+              submitButton.textContent = 'Submitted'; // Optional: change button text
+
+              // Re-initialize FormData in case there are dynamically added fields
               const formData = new FormData(event.target);
-              const imageId = formData.get('image_id');
-              const drRating = formData.get('dr_rating');
-  
-              const response = await fetch('/submit_grade', {
-                  method: 'POST',
-                  body: formData
-              });
-              const result = await response.json();
-  
-              if(result.status === 'success') {
-                  // Reveal the model predictions
-                  document.getElementById(`predictions-${result.image_id}`).style.display = 'block';
-              } else {
-                  // Handle error
-                  console.error('Error submitting grade');
+
+              // Determine the endpoint based on the form class
+              const endpoint = event.target.action; // Use the form's action attribute directly
+
+              try {
+                  const response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
+                  });
+
+                  if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                  }
+
+                  const result = await response.json();
+                  if (result.status === 'success') {
+                    const predictionsId = `predictions-${result.image_id}`;
+                    // Reveal the model predictions witSubmittinghout hiding the form
+                    document.getElementById(predictionsId).style.display = 'block';
+                  } else {
+                    // Handle error
+                    console.error(`Error submitting to ${endpoint}: ${result.message}`);
+                    submitButton.disabled = false; // Re-enable the button if there's an error
+                    submitButton.textContent = 'Submit Rating'; // Reset button text
+                  }
+              } catch (error) {
+                console.error('Fetch error:', error.message);
+                submitButton.disabled = false; // Re-enable the button if there's a fetch error
+                submitButton.textContent = 'Submit Rating'; // Reset button text
               }
           });
       });
   });
 </script>
+
+
+
+
 <style>
   /* Style for the images in the grading interface */
   .grading-image {
@@ -151,10 +182,6 @@
     object-fit: cover; /* cover the area without stretching */
     margin-bottom: 10px; /* same bottom margin for consistency */
   }
-  /* Larger font size for instructions
-  .instructions-list {
-    font-size: 1.2em; /* Adjust the value as needed */
-  } */
 </style>
 
 {% endblock %}

@@ -6,7 +6,7 @@ import os
 import datetime
 from keras.models import Model
 
-def generate_gradcam_heatmap(image_array, image_file, model_inception):
+def generate_gradcam_heatmap(image_array, model_inception):
     # Create a separate model for Grad-CAM
     grad_model = Model([model_inception.inputs], 
                     [model_inception.get_layer('mixed10').output, 
@@ -42,25 +42,6 @@ def generate_gradcam_heatmap(image_array, image_file, model_inception):
     # For visualization purpose, we will also normalize the heatmap between 0 & 1
     heatmap = np.maximum(heatmap, 0) / np.max(heatmap)
 
-    # Create a temporary file in memory
-    with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_image:
-        image_file.save(temp_image.name)
-
-        # Use cv2 to resize the heatmap to the original image size
-        img = cv2.imread(temp_image.name)
-        heatmap = cv2.resize(heatmap, (img.shape[1], img.shape[0]))
-
-        # Create 'output/' directory if it doesn't exist
-        if not os.path.exists('output'):
-            os.makedirs('output')
-
-        # Generate a unique filename based on the current date and time
-        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        original_img_path = f'output/original_img_{timestamp}.jpg'
-        
-        # Save the original image to a file
-        cv2.imwrite(original_img_path, img)
-
     # Convert the heatmap to RGB
     heatmap = np.uint8(255 * heatmap)
 
@@ -68,18 +49,9 @@ def generate_gradcam_heatmap(image_array, image_file, model_inception):
     heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
 
     # 0.4 here is a heatmap intensity factor
-    superimposed_img = heatmap * 0.4 + img
+    superimposed_img = heatmap * 0.4 + image_array
 
-    # Generate a unique filename for the superimposed image
-    superimposed_img_path = f'output/superimposed_img_{timestamp}.jpg'
-    
-    # Save the superimposed image to a file
-    cv2.imwrite(superimposed_img_path, superimposed_img)
-
-    # Clean up older files in the 'output' directory to save space
-    cleanup_old_files('output')
-
-    return original_img_path, superimposed_img_path
+    return superimposed_img
 
 def cleanup_old_files(directory):
     """Remove files older than 1 day from the specified directory."""

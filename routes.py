@@ -1,14 +1,16 @@
-from fastapi import FastAPI, File, UploadFile, Request, Form
+from fastapi import FastAPI, File, UploadFile, Request, Form, Depends
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from PIL import Image, UnidentifiedImageError
+from sqlalchemy.orm import Session
 import io
 import json
 
 from models import preprocess_image, predict, model_inception
 from categories import get_category, get_explanation_text
 from image_processing import generate_gradcam_heatmap
-from database import SessionLocal, User, Response
+from database import SessionLocal, User, SurveyAnswers, GradingInterfaceAnswers
+
 
 templates = Jinja2Templates(directory="templates")
 
@@ -23,6 +25,13 @@ def load_grading_data():
 # Call the function to load the data when the app starts
 load_grading_data()
 
+# Dependency to get the DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 def add_routes(app: FastAPI):
     
@@ -52,66 +61,110 @@ def add_routes(app: FastAPI):
     
     @app.get("/grading")
     async def grading(request: Request):
-        # Pass the loaded grading data to the template
-        return templates.TemplateResponse("grading_interface.html", {"request": request, "grading_data": grading_data})
+        # Create a new user record for each session
+        db = SessionLocal()
+        new_user = User()
+        db.add(new_user)
+        db.commit()
+
+        # Pass the user ID and loaded grading data to the template
+        return templates.TemplateResponse("grading_interface.html", {
+            "request": request, 
+            "user_id": new_user.id,
+            "grading_data": grading_data  # Assuming grading_data is loaded as before
+        })
 
     @app.post("/submit_grade")
-    async def submit_grade(request: Request):
+    async def submit_grade(request: Request, user_id: int = Form(...), dr_rating: int = Form(...)):
         form_data = await request.form()
         image_id = form_data['image_id']
-        dr_rating = form_data['dr_rating']
-        
-        # Logic to update database or JSON file with new rating
-        # ...
-        
-        # Respond with a JSON confirmation
+        user_DR_rating = dr_rating  # This is the rating provided by the user
+
+        # Load the grading data to find the pre-classified DR_rating
+        global grading_data
+        grading_entry = next((entry for entry in grading_data if entry['image_id'] == image_id), None)
+
+        db = SessionLocal()
+        # Find the existing record or create a new one if it doesn't exist
+        grading_response = db.query(GradingInterfaceAnswers).filter_by(user_id=user_id, image_id=image_id).first()
+        if not grading_response:
+            # Instantiate a new GradingInterfaceAnswer with user_DR_rating and pre-classified DR_rating
+            grading_response = GradingInterfaceAnswers(
+                user_id=user_id,
+                image_id=image_id,
+                DR_rating=grading_entry['aptos_dr_rating'] if grading_entry else None,  # Use the pre-classified DR_rating
+                user_DR_rating=user_DR_rating,
+                visual_accuracy=None,
+                severity_accuracy=None
+            )
+            db.add(grading_response)
+        else:
+            # Update the existing record with the new user_DR_rating
+            grading_response.user_DR_rating = user_DR_rating
+            # Ensure the DR_rating is up to date
+            grading_response.DR_rating = grading_entry['aptos_dr_rating'] if grading_entry else grading_response.DR_rating
+
+        db.commit()
+        db.close()
+
         return JSONResponse(content={"status": "success", "image_id": image_id})
+
+    @app.post("/submit_accuracy")
+    async def submit_accuracy(request: Request, user_id: int = Form(...)):
+        form_data = await request.form()
+        image_id = form_data['image_id']
+        
+        visual_accuracy = form_data.get('visual_accuracy')
+        severity_accuracy = form_data.get('severity_accuracy')
+        # ... capture any other fields from the form
+
+        db = SessionLocal()
+        # Find the existing record and update it
+        grading_response = db.query(GradingInterfaceAnswers).filter_by(user_id=user_id, image_id=image_id).first()
+        if grading_response:
+            grading_response.visual_accuracy = visual_accuracy
+            grading_response.severity_accuracy = severity_accuracy
+            # ... update any other fields
+            db.commit()
+
+        db.close()
+        return JSONResponse(content={"status": "success", "image_id": image_id})
+
     
     @app.get("/survey")
     async def survey_page(request: Request):
-        return templates.TemplateResponse("survey.html", {"request": request})
+        user_id = request.query_params.get('user_id')
+        return templates.TemplateResponse("survey.html", {"request": request, "user_id": user_id})
+
+    question_id_map = {
+        "profession": "profession",
+        "years_of_experience": "years_of_experience",
+        "model_accuracy": "model_accuracy",
+        "model_alignment": "model_alignment",
+        "decision_confidence": "decision_confidence",
+        "grad_cam_usefulness": "grad_cam_usefulness",
+        "grad_cam_accuracy": "grad_cam_accuracy",
+        "improvements_suggested": "improvements_suggested",
+        "recommend_retinoguard": "recommend_retinoguard"
+    }
+
+
+    @app.post("/submit_survey/")
+    async def submit_survey(request: Request, user_id: int = Form(...), db: Session = Depends(get_db)):
+        form_data = await request.form()
+
+        for key, value in form_data.items():
+            if key != "user_id":  # Assuming 'user_id' is not a question but metadata
+                question_id = question_id_map.get(key, key)
+                survey_response = SurveyAnswers(user_id=user_id, question_id=question_id, answer=value)
+                db.add(survey_response)
+
+        db.commit()
+        return JSONResponse(content={"status": "success", "message": "Survey response submitted successfully"})
 
     @app.get("/complete")
     async def complete(request: Request):
         return templates.TemplateResponse("complete.html", {"request": request})
-
-    @app.post("/submit_survey/")
-    async def submit_survey(
-        profession: int = Form(...),
-        years_of_experience: str = Form(None),
-        ease_of_navigation: int = Form(...),
-        user_interface_intuitive: int = Form(...),
-        model_accuracy: int = Form(...),
-        model_alignment: int = Form(...),
-        decision_confidence: int = Form(...),
-        grad_cam_usefulness: int = Form(...),
-        grad_cam_accuracy: int = Form(...),
-        improvements_suggested: str = Form(None),
-        recommend_retinoguard: int = Form(...)
-    ):
-        db = SessionLocal()
-        db_user = User(profession=profession, years_of_experience=years_of_experience)
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-
-        db_response = Response(
-            user_id=db_user.id,
-            ease_of_navigation=ease_of_navigation,
-            user_interface_intuitive=user_interface_intuitive,
-            model_accuracy=model_accuracy,
-            model_alignment=model_alignment,
-            decision_confidence=decision_confidence,
-            grad_cam_usefulness=grad_cam_usefulness,
-            grad_cam_accuracy=grad_cam_accuracy,
-            improvements_suggested=improvements_suggested,
-            recommend_retinoguard=recommend_retinoguard
-        )
-        db.add(db_response)
-        db.commit()
-        db.refresh(db_response)
-        
-        return RedirectResponse(url="/complete", status_code=303)
 
     @app.get("/result")
     async def result_page(request: Request, timestamp: str = None, prediction_inception=None, probability_inception=None, prediction_xception=None, probability_xception=None, prediction=None, probability=None, explanation_text=None, category=None, category_inception=None, category_xception=None):
@@ -151,12 +204,28 @@ def add_routes(app: FastAPI):
             category = get_category(int(predicted_category))
             explanation_text = get_explanation_text(int(predicted_category))
             
-            original_img_path, superimposed_img_path = generate_gradcam_heatmap(image_array, image_file, model_inception)
-            timestamp = original_img_path.split('_')[-1].split('.')[0]
+            superimposed_img = generate_gradcam_heatmap(image_array, model_inception)
 
-            return RedirectResponse(
-                url=f"/result?timestamp={timestamp}&prediction_inception={predicted_category_inception}&probability_inception={predicted_probability_inception}&category_inception={category_inception}&prediction_xception={predicted_category_xception}&probability_xception={predicted_probability_xception}&category_xception={category_xception}&prediction={predicted_category}&probability={predicted_probability}&category={category}&explanation_text={explanation_text}",
-                status_code=303
+            # Convert the superimposed image to a PIL image
+            superimposed_img_pil = Image.fromarray(superimposed_img)
+
+            # Save the superimposed image to a BytesIO object
+            superimposed_img_bytesio = io.BytesIO()
+            superimposed_img_pil.save(superimposed_img_bytesio, format='JPEG')
+            superimposed_img_bytesio.seek(0)
+
+            return JSONResponse(
+                content={
+                    "prediction_inception": predicted_category_inception,
+                    "probability_inception": predicted_probability_inception,
+                    "prediction_xception": predicted_category_xception,
+                    "probability_xception": predicted_probability_xception,
+                    "prediction": predicted_category,
+                    "probability": predicted_probability,
+                    "explanation_text": explanation_text,
+                    "category": category
+                },
+                media_type="application/json",
             )
 
         except UnidentifiedImageError:

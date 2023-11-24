@@ -1,54 +1,51 @@
-from sqlalchemy import create_engine, Column, String, Integer, ForeignKey, inspect
+from sqlalchemy import create_engine, Column, String, Integer, ForeignKey, JSON
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, backref
+from sqlalchemy.dialects.postgresql import JSONB
 
 # Initialize SQLAlchemy
 DATABASE_URL = "sqlite:///./survey_data.db"
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
 
-# Create an inspector object
-inspector = inspect(engine)
-
-# Get names of all tables in the database
-existing_tables = inspector.get_table_names()
-
 # Create a table for user data
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True, index=True)
-    profession = Column(Integer)
+    profession = Column(Integer)  # Assuming profession is stored as an integer
     years_of_experience = Column(String)
-    responses = relationship("Response", back_populates="user")
-    annotations = relationship("Annotation", back_populates="user")
+    survey_answers = relationship("SurveyAnswers", back_populates="user")
 
 # Create a table for survey responses
-class Response(Base):
-    __tablename__ = 'responses'
+class SurveyAnswers(Base):
+    __tablename__ = 'survey_answers'
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    ease_of_navigation = Column(Integer)
-    user_interface_intuitive = Column(Integer)
-    model_accuracy = Column(Integer)
-    model_alignment = Column(Integer)
-    decision_confidence = Column(Integer)
-    grad_cam_usefulness = Column(Integer)
-    grad_cam_accuracy = Column(Integer)
-    improvements_suggested = Column(String)
-    recommend_retinoguard = Column(Integer)
-    user = relationship("User", back_populates="responses")
+    question_id = Column(String)
+    answer = Column(String)
+    user = relationship("User", back_populates="survey_answers")
 
-# Create a table for annotations
-class Annotation(Base):
-    __tablename__ = 'annotations'
+class GradingInterfaceAnswers(Base):
+    __tablename__ = 'grading_interface_answers'
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    image_path = Column(String)
-    annotated_image_path = Column(String)
-    diagnosis = Column(String)
-    user = relationship("User", back_populates="annotations")
+    image_id = Column(String)
 
-# Check and create tables if they don't exist
+    # Pre-classified DR rating
+    DR_rating = Column(Integer)
+    
+    # User-provided DR rating
+    user_DR_rating = Column(Integer)
+
+    # Accuracy columns
+    visual_accuracy = Column(Integer)
+    severity_accuracy = Column(Integer)
+    
+    # Relationship to the User table (if needed)
+    user = relationship("User", backref="grading_interface_answers")
+
+
+# Create all tables
 Base.metadata.create_all(bind=engine)
 
 # Initialize session
